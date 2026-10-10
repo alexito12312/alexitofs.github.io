@@ -96,6 +96,9 @@ footer{color:rgba(255,255,255,.8)}
 .sbody a.twitter-timeline,.sbody .tiktok-embed a{color:var(--accent);font-weight:700}
 .sbody .nota{margin:0 0 4px;color:var(--mute);text-align:center;font-size:.95rem}
 @media (max-width:400px){.sgrid{grid-template-columns:minmax(0,1fr)}}
+.fanwrap{text-align:center;margin-top:36px}
+.fanbtn{margin-top:0;border:2px solid #fff;font-size:1.05rem;letter-spacing:.5px}
+.fanbtn:hover{transform:translateY(-2px) scale(1.04)}
 </style>
 </head>
 <body>
@@ -194,11 +197,13 @@ footer{color:rgba(255,255,255,.8)}
     </div>
   </section>
 
+  <div class="fanwrap"><a class="cta fanbtn" id="fanlink" href="fanarts.html">🎨 FANARTS COMUNIDAD</a></div>
+
   <footer>© Alexito FS · Hecho con cariño 💜</footer>
 </div>
 
 <script>
-console.info("Alexito FS · versión 2026-10-10-c (index.html)");
+console.info("Alexito FS · versión 2026-10-10-d (index.html)");
 /* ===== Configuración =====
    API_KEY (opcional): clave gratis de la YouTube Data API v3. Con ella salen
    vistas, Shorts, suscriptores al día y foto real. Sin ella, los videos se
@@ -348,6 +353,8 @@ async function sinApi(){
   if(!m||!m[1])return;
   var a=document.querySelector('a[href="contacto.html"]');
   if(a)a.setAttribute("href","contacto"+m[1]+".html");
+  var f=document.getElementById("fanlink");
+  if(f)f.setAttribute("href","fanarts"+m[1]+".html");
 })();
 
 /* ===== Posts de redes =====
