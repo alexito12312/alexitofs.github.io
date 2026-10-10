@@ -198,7 +198,7 @@ footer{color:rgba(255,255,255,.8)}
 </div>
 
 <script>
-console.info("Alexito FS · versión 2026-10-10-b (index.html)");
+console.info("Alexito FS · versión 2026-10-10-c (index.html)");
 /* ===== Configuración =====
    API_KEY (opcional): clave gratis de la YouTube Data API v3. Con ella salen
    vistas, Shorts, suscriptores al día y foto real. Sin ella, los videos se
@@ -271,24 +271,50 @@ function ponerSubs(c,n){
   s.textContent=txt;
 }
 
+function esperar(ms){return new Promise(function(ok){setTimeout(ok,ms)})}
+/* Pide a la API y reintenta si responde 403/429/5xx (por ejemplo, mientras Google aplica cambios de la clave) */
+async function pedir(url){
+  for(var i=0;i<3;i++){
+    var r=await fetch(url);
+    if(r.ok)return r.json();
+    var cuerpo="";try{cuerpo=(await r.text()).slice(0,300)}catch(e0){}
+    var reintentar=(r.status===403||r.status===429||r.status>=500)&&i<2;
+    if(!reintentar)throw new Error("api "+r.status+" "+cuerpo);
+    await esperar(700*(i+1));
+  }
+}
+/* Plan B por canal: feed público (título, miniatura y fecha) */
+async function rssCanal(c){
+  var feed="https://www.youtube.com/feeds/videos.xml?channel_id="+c.id;
+  var r=await fetch("https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(feed));
+  if(!r.ok)throw new Error("rss "+r.status);
+  var d=await r.json();
+  var items=(d.items||[]).map(function(i){
+    var m=/[?&]v=([\w-]{11})/.exec(i.link||"");
+    return m?{id:m[1],titulo:i.title,fecha:new Date((i.pubDate||"").replace(" ","T")+"Z")}:null;
+  }).filter(Boolean);
+  if(!items.length)throw new Error("rss vacio");
+  pintar(c,items);
+}
 async function conApi(){
   var base="https://www.googleapis.com/youtube/v3/",K="&key="+CONFIG.API_KEY;
-  var r=await fetch(base+"channels?part=statistics,contentDetails&id="+CANALES.map(function(c){return c.id}).join(",")+K);
-  if(!r.ok){var cuerpo="";try{cuerpo=(await r.text()).slice(0,400)}catch(e0){}throw new Error("api "+r.status+" "+cuerpo)}
-  var d=await r.json();var mapa={};(d.items||[]).forEach(function(i){mapa[i.id]=i});
+  var d=await pedir(base+"channels?part=statistics,contentDetails&id="+CANALES.map(function(c){return c.id}).join(",")+K);
+  var mapa={};(d.items||[]).forEach(function(i){mapa[i.id]=i});
   await Promise.all(CANALES.map(async function(c){
-    var i=mapa[c.id];if(!i){fallo(c);return}
+    var i=mapa[c.id];
+    if(!i){try{await rssCanal(c)}catch(e){fallo(c)}return}
     if(i.statistics&&!i.statistics.hiddenSubscriberCount&&i.statistics.subscriberCount)ponerSubs(c,+i.statistics.subscriberCount);
     try{
       var up=i.contentDetails.relatedPlaylists.uploads;
-      var pr=await fetch(base+"playlistItems?part=snippet&maxResults="+CONFIG.POR_CANAL+"&playlistId="+up+K);
-      if(!pr.ok)throw new Error("pl");
-      var items=(await pr.json()).items||[];
-      var ids=items.map(function(x){return x.snippet.resourceId.videoId});
+      var pd=await pedir(base+"playlistItems?part=snippet&maxResults="+CONFIG.POR_CANAL+"&playlistId="+up+K);
+      var items=pd.items||[];
+      var idsVideos=items.map(function(x){return x.snippet.resourceId.videoId});
       var det={};
-      if(ids.length){
-        var vr=await fetch(base+"videos?part=statistics,contentDetails&id="+ids.join(",")+K);
-        if(vr.ok)((await vr.json()).items||[]).forEach(function(v){det[v.id]=v});
+      if(idsVideos.length){
+        try{
+          var vd=await pedir(base+"videos?part=statistics,contentDetails&id="+idsVideos.join(",")+K);
+          (vd.items||[]).forEach(function(v){det[v.id]=v});
+        }catch(e1){console.warn(c.handle,"sin vistas:",e1.message)}
       }
       pintar(c,items.map(function(x){
         var id=x.snippet.resourceId.videoId,v=det[id]||{};
@@ -298,22 +324,14 @@ async function conApi(){
           vistas:v.statistics&&v.statistics.viewCount!=null?+v.statistics.viewCount:null,
           short:v.contentDetails?dur(v.contentDetails.duration)<=180:false};
       }));
-    }catch(e){console.warn(c.handle,e);fallo(c)}
+    }catch(e){
+      console.warn(c.handle,e.message);
+      try{await rssCanal(c)}catch(e2){fallo(c)}
+    }
   }));
 }
 async function sinApi(){
-  await Promise.all(CANALES.map(async function(c){
-    try{
-      var feed="https://www.youtube.com/feeds/videos.xml?channel_id="+c.id;
-      var r=await fetch("https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(feed));
-      if(!r.ok)throw new Error("rss");
-      var d=await r.json();
-      pintar(c,(d.items||[]).map(function(i){
-        var m=/[?&]v=([\w-]{11})/.exec(i.link||"");if(!m)return null;
-        return{id:m[1],titulo:i.title,fecha:new Date((i.pubDate||"").replace(" ","T")+"Z")};
-      }).filter(Boolean));
-    }catch(e){fallo(c)}
-  }));
+  await Promise.all(CANALES.map(function(c){return rssCanal(c).catch(function(){fallo(c)})}));
 }
 (async function(){
   try{
