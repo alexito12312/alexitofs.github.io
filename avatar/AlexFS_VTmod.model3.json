@@ -1,0 +1,12 @@
+{
+  "Version": 3,
+  "FileReferences": {
+    "Moc": "AlexFS_VTmod.moc3",
+    "Textures": ["texture_00.webp"],
+    "Physics": "AlexFS_VTmod.physics3.json"
+  },
+  "Groups": [
+    {"Target": "Parameter", "Name": "EyeBlink", "Ids": ["ParamEyeLOpen", "ParamEyeROpen"]},
+    {"Target": "Parameter", "Name": "LipSync", "Ids": ["ParamMouthOpenY"]}
+  ]
+}

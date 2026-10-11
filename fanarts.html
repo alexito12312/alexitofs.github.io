@@ -43,6 +43,32 @@ footer{text-align:center;color:rgba(255,255,255,.88);font-size:.85rem;padding:40
 body.noscroll{overflow:hidden}
 @media (max-width:560px){.nav{width:40px;height:40px;font-size:1.2rem}.lb .lp,.lb .ln{top:auto;bottom:44px;transform:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ===== Arma mi avatar ===== */
+.avt{margin-top:56px}
+.avt h2{margin:0 0 6px;font-size:1.6rem;text-align:center;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.avt .sub{margin:0 auto 18px;max-width:600px;text-align:center;color:rgba(255,255,255,.9);text-shadow:0 1px 8px rgba(0,0,0,.6)}
+.avt-grid{display:grid;gap:18px;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);align-items:start}
+.avt-view{position:sticky;top:12px;border:2px solid #fff;border-radius:20px;overflow:hidden;background:rgba(20,8,32,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);aspect-ratio:3/4;display:grid;place-items:center}
+.avt-view canvas{width:100%;height:100%;display:block}
+.avt-msg{position:absolute;padding:20px;text-align:center;color:#fff;font-weight:700}
+
+.avt-panel{border:2px solid #fff;border-radius:20px;background:rgba(20,8,32,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:16px 18px}
+.grp{margin:0 0 14px}.grp:last-of-type{margin-bottom:6px}
+.grp h3{margin:0 0 8px;font-size:.95rem;letter-spacing:.3px;color:#ffd1e6}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:2px solid rgba(255,255,255,.75);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:7px 14px;font:700 .85rem/1 "Nunito","Segoe UI",system-ui,sans-serif;cursor:pointer;transition:background .2s,transform .15s,border-color .2s}
+.opt:hover{transform:translateY(-1px);border-color:#fff;background:rgba(255,255,255,.2)}
+.opt[aria-pressed="true"]{background:linear-gradient(135deg,#a78bfa,#f472b6);border-color:#fff}
+.opt:focus-visible{outline:3px solid #f472b6;outline-offset:2px}
+.opt:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.3)}
+.act{border:2px solid #fff;background:linear-gradient(135deg,#8b5cf6,#ec4899);color:#fff;border-radius:999px;padding:10px 18px;font:800 .9rem/1 "Nunito","Segoe UI",system-ui,sans-serif;cursor:pointer}
+.act.alt{background:rgba(255,255,255,.1)}
+.act:hover{filter:brightness(1.12)}
+.act:disabled{opacity:.5;cursor:not-allowed}
+.avt-note{margin:12px 0 0;font-size:.78rem;color:rgba(255,255,255,.8)}
+@media (max-width:760px){.avt-grid{grid-template-columns:1fr}.avt-view{position:relative;top:0;max-width:420px;margin:0 auto;width:100%}}
 </style>
 </head>
 <body>
@@ -72,6 +98,19 @@ body.noscroll{overflow:hidden}
   <div class="dots" id="dots"></div>
   <p class="hint">Desliza, usa las flechas del teclado o toca los lados.</p>
 
+
+  <section class="avt" id="avt" aria-label="Arma mi avatar">
+    <h2>🧩 Arma mi avatar</h2>
+    <p class="sub">Elige cabello, color, traje y expresión para crear tu propia referencia y descárgala para dibujarme.</p>
+    <div class="avt-grid">
+      <div class="avt-view" id="avtView">
+        <canvas id="avtCanvas" aria-label="Vista previa del avatar"></canvas>
+        <div class="avt-msg" id="avtMsg">Cargando avatar…</div>
+      </div>
+      <div class="avt-panel" id="avtPanel"></div>
+    </div>
+  </section>
+
   <footer>© Alexito FS · Los dibujos son de sus autores 💜 · <a id="back2" href="index.html">Volver al inicio</a></footer>
 </div>
 
@@ -84,7 +123,7 @@ body.noscroll{overflow:hidden}
 </div>
 
 <script>
-console.info("Alexito FS · versión 2026-10-10-d (fanarts.html)");
+console.info("Alexito FS · versión 2026-10-10-e (fanarts.html)");
 (function(){
   var sl=[].slice.call(document.querySelectorAll(".sl")),N=sl.length,cur=0,timer=null;
   var reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -139,6 +178,128 @@ console.info("Alexito FS · versión 2026-10-10-d (fanarts.html)");
   /* enlaces: respeta el nombre real del archivo (p. ej. "fanarts (1).html") */
   var m=/\/fanarts([^\/]*)\.html$/i.exec(location.pathname);
   if(m&&m[1]){["back","back2"].forEach(function(id){document.getElementById(id).setAttribute("href","index"+m[1]+".html")})}
+})();
+
+/* ===== Arma mi avatar (Live2D) =====
+   Cada opción es un parámetro del modelo; los valores salen de las expresiones (.exp3.json)
+   de VTube Studio. Para cambiar nombres o agregar opciones edita AVT_GRUPOS. */
+(function(){
+  var RUTA="avatar/AlexFS_VTmod.model3.json";
+  var LIBS=[
+    "https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js",
+    "https://cdn.jsdelivr.net/npm/pixi.js@6.5.10/dist/browser/pixi.min.js",
+    "https://cdn.jsdelivr.net/npm/pixi-live2d-display@0.4.0/dist/cubism4.min.js"
+  ];
+  /* tipo "uno": se elige una opción por grupo; "varios": se pueden activar varias.
+     p = lista de [parámetro, valor]. La primera opción de cada grupo "uno" es la normal. */
+  var AVT_GRUPOS=[
+    {t:"Color de pelo",tipo:"uno",o:[["Rosa",[]],["Blanco",[["Param16",-0.5]]],["Café",[["Param16",1]]],["Morado",[["Param16",-1]]]]},
+    {t:"Peinado",tipo:"uno",o:[["Normal",[]],["Pelo corto",[["Param10",-1]]],["Cola de caballo",[["Param15",-1]]],["Coletas",[["Param15",1]]]]},
+    {t:"Traje",tipo:"uno",o:[["Sudadera",[]],["Oversize",[["Param12",0.5]]],["Fitness",[["Param12",1]]],["Vendas",[["Param12",-0.5]]],["Ropa Vaporeon",[["Param12",-1]]],["Outfit 2",[["Param",1]]],["Bikini",[["Param",-1]]]]},
+    {t:"Expresión",tipo:"uno",o:[["Normal",[]],["Alegre",[["ParamEyeLSmile",1],["ParamEyeRSTYLE",1],["ParamBrowLY",0.5],["ParamBrowRY",0.5],["ParamMouthForm",0.6]]],
+      ["=.=",[["ParamEyeLSmile",3],["ParamEyeRSTYLE",3],["ParamBrowLForm",-1],["ParamBrowRForm",-1],["ParamMouthForm",-0.38]]],
+      ["o.o",[["ParamEyeLSmile",2],["ParamEyeRSTYLE",2],["ParamBrowLForm",2],["ParamBrowRForm",2],["ParamMouthForm",-0.2]]],
+      ["Hump",[["ParamEyeLOpen",-0.1],["ParamEyeROpen",-0.2],["ParamBrowLForm",-1],["ParamBrowRForm",-1],["ParamMouthForm",1.6]]],
+      ["Sorpresa",[["Surprise",2]]],
+      ["Lágrimas",[["Param8",1],["ParamBrowLForm",1],["ParamBrowRForm",1],["ParamMouthForm",-0.4]]],
+      ["Miedo",[["Param8",-1],["EyeBright",-1]]]]},
+    {t:"Extras",tipo:"varios",o:[["Sonrojo",[["blush",1]]],["Sin cola",[["Param9",-1]]],["Medias",[["Param11",-1]]],["Vaporeon en brazos",[["ParamShoulderLRotation",60]]],["Saludo",[["ParamShoulderRRotation",60],["ParamMouthForm",0.35]]],["Manos fuera",[["Param13",2]]]]}
+  ];
+  var panel=document.getElementById("avtPanel"),msg=document.getElementById("avtMsg"),canvas=document.getElementById("avtCanvas");
+  var estado=AVT_GRUPOS.map(function(g){return g.tipo==="uno"?0:[]}),botones=[],modelo=null,app=null;
+  function mk(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+  function activos(){
+    var out={};
+    AVT_GRUPOS.forEach(function(g,i){
+      var sel=g.tipo==="uno"?[estado[i]]:estado[i];
+      sel.forEach(function(k){g.o[k][1].forEach(function(p){out[p[0]]=(out[p[0]]||0)+p[1]})});
+    });
+    return out;
+  }
+  function pintar(){
+    botones.forEach(function(b){
+      var g=AVT_GRUPOS[b.g],on=g.tipo==="uno"?estado[b.g]===b.k:estado[b.g].indexOf(b.k)>-1;
+      b.el.setAttribute("aria-pressed",on?"true":"false");
+    });
+  }
+  function elegir(gi,k){
+    var g=AVT_GRUPOS[gi];
+    if(g.tipo==="uno")estado[gi]=k;
+    else{var p=estado[gi].indexOf(k);if(p>-1)estado[gi].splice(p,1);else estado[gi].push(k)}
+    pintar();
+  }
+  AVT_GRUPOS.forEach(function(g,gi){
+    var box=mk("div","grp");box.appendChild(mk("h3",null,g.t));
+    var fila=mk("div","opts");fila.setAttribute("role",g.tipo==="uno"?"radiogroup":"group");fila.setAttribute("aria-label",g.t);
+    g.o.forEach(function(o,k){
+      var b=mk("button","opt",o[0]);b.type="button";b.disabled=true;
+      b.onclick=function(){elegir(gi,k)};fila.appendChild(b);botones.push({g:gi,k:k,el:b});
+    });
+    box.appendChild(fila);panel.appendChild(box);
+  });
+  var acts=mk("div","acts");
+  var bAle=mk("button","act alt","🎲 Aleatorio"),bRes=mk("button","act alt","↺ Reiniciar"),bDes=mk("button","act","⬇ Descargar imagen");
+  [bAle,bRes,bDes].forEach(function(b){b.type="button";b.disabled=true;acts.appendChild(b)});
+  panel.appendChild(acts);
+  panel.appendChild(mk("p","avt-note","La imagen se descarga con fondo transparente. Es un modelo mío: úsalo sólo como referencia para tus fanarts, gracias 💜"));
+  function habilitar(v){botones.forEach(function(b){b.el.disabled=!v});[bAle,bRes,bDes].forEach(function(b){b.disabled=!v})}
+  bRes.onclick=function(){AVT_GRUPOS.forEach(function(g,i){estado[i]=g.tipo==="uno"?0:[]});pintar()};
+  bAle.onclick=function(){
+    AVT_GRUPOS.forEach(function(g,i){
+      if(g.tipo==="uno")estado[i]=Math.floor(Math.random()*g.o.length);
+      else estado[i]=g.o.map(function(_,k){return k}).filter(function(){return Math.random()<.3});
+    });
+    pintar();
+  };
+  bDes.onclick=function(){
+    if(!app)return;
+    app.renderer.render(app.stage);
+    canvas.toBlob(function(bl){
+      if(!bl)return;
+      var a=document.createElement("a");a.href=URL.createObjectURL(bl);a.download="alexito-referencia.png";
+      document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},1500);
+    },"image/png");
+  };
+  function cargar(src){return new Promise(function(ok,mal){var s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=function(){mal(new Error(src))};document.head.appendChild(s)})}
+  function falla(e){
+    console.warn("Avatar:",e);
+    msg.textContent="No se pudo cargar el avatar ahora mismo. Revisa tu conexión y recarga la página.";msg.hidden=false;
+  }
+  function ajustar(){
+    if(!modelo||!app)return;
+    var w=canvas.clientWidth||300,h=canvas.clientHeight||400;
+    app.renderer.resize(w,h);
+    modelo.scale.set(1);
+    var b=modelo.getLocalBounds?modelo.getLocalBounds():{width:modelo.width,height:modelo.height,x:0,y:0};
+    var s=Math.min(w/b.width,h/b.height)*0.96;
+    modelo.scale.set(s);
+    modelo.x=w/2-(b.x+b.width/2)*s;modelo.y=h/2-(b.y+b.height/2)*s;
+  }
+  function iniciar(){
+    var P=window.PIXI;
+    if(!P||!P.live2d||!window.Live2DCubismCore)return falla("faltan librerías");
+    app=new P.Application({view:canvas,transparent:true,backgroundAlpha:0,autoStart:true,antialias:true,resolution:Math.min(window.devicePixelRatio||1,2),autoDensity:true,preserveDrawingBuffer:true,width:canvas.clientWidth||300,height:canvas.clientHeight||400});
+    P.live2d.Live2DModel.from(RUTA,{autoInteract:false}).then(function(m){
+      modelo=m;app.stage.addChild(m);ajustar();
+      var core=m.internalModel.coreModel;
+      m.internalModel.on("beforeModelUpdate",function(){
+        var a=activos();
+        for(var id in a){try{core.addParameterValueById(id,a[id])}catch(e){}}
+      });
+      msg.hidden=true;habilitar(true);pintar();
+      window.addEventListener("resize",ajustar);
+    }).catch(falla);
+  }
+  var arrancado=false;
+  function arrancar(){
+    if(arrancado)return;arrancado=true;
+    LIBS.reduce(function(p,s){return p.then(function(){return cargar(s)})},Promise.resolve()).then(iniciar).catch(falla);
+  }
+  if("IntersectionObserver" in window){
+    var io=new IntersectionObserver(function(es){if(es[0].isIntersecting){io.disconnect();arrancar()}},{rootMargin:"300px"});
+    io.observe(document.getElementById("avt"));
+  }else arrancar();
+  window.__avt={activos:activos,elegir:elegir,estado:estado,grupos:AVT_GRUPOS};
 })();
 </script>
 </body>
