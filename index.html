@@ -463,5 +463,237 @@ function inyectar(cont,html){
 })();
 
 </script>
+
+<!-- ===== CALENDARIO DE JUEGOS ===== -->
+<style>
+  /* ---------- Pestaña lateral ---------- */
+  .ax-tab{
+    position:fixed; left:0; top:50%; transform:translate(calc(-100% + 58px),-50%);
+    z-index:900; display:flex; align-items:center; gap:10px;
+    padding:14px 14px 14px 18px; cursor:pointer; border:2px solid #fff; border-left:none;
+    border-radius:0 22px 22px 0;
+    background:linear-gradient(135deg,#a78bfa,#f472b6);
+    color:#fff; font:800 14px/1 "Poppins","Segoe UI",system-ui,sans-serif; letter-spacing:.06em;
+    box-shadow:0 0 0 0 rgba(244,114,182,.6), 0 8px 24px rgba(0,0,0,.45);
+    animation:ax-pulse 2.4s ease-in-out infinite, ax-peek 5s ease-in-out 1.2s infinite;
+    transition:transform .35s cubic-bezier(.2,1.4,.4,1), filter .2s;
+  }
+  .ax-tab:hover,.ax-tab:focus-visible{transform:translate(0,-50%); filter:brightness(1.1); animation:ax-pulse 2.4s ease-in-out infinite; outline:none}
+  .ax-tab .ax-ico{position:relative; width:38px; height:38px; flex:none}
+  /* carita de kitsune */
+  .ax-tab .ax-ico svg{width:100%; height:100%; display:block; overflow:visible; filter:drop-shadow(0 2px 3px rgba(60,10,70,.35)); transition:transform .3s}
+  .ax-tab:hover .ax-ico svg{transform:rotate(-8deg) scale(1.12)}
+  .ax-tab .ax-ico .ear{transform-origin:50% 100%; animation:ax-ear 3.2s ease-in-out infinite}
+  .ax-tab .ax-ico .ear.r{animation-delay:.25s}
+  @keyframes ax-ear{0%,86%,100%{transform:rotate(0)}91%{transform:rotate(-9deg)}96%{transform:rotate(4deg)}}
+  .ax-tab .ax-txt{display:flex; flex-direction:column; gap:3px; white-space:nowrap}
+  .ax-tab .ax-txt small{font-size:10px; font-weight:600; opacity:.9; letter-spacing:.04em}
+  .ax-spark{position:absolute; color:#fff; font-size:12px; pointer-events:none; animation:ax-twinkle 1.8s ease-in-out infinite}
+  .ax-spark.a{top:-8px; right:12px}
+  .ax-spark.b{bottom:-8px; right:34px; animation-delay:.9s; font-size:9px}
+  @keyframes ax-pulse{0%,100%{box-shadow:0 0 0 0 rgba(244,114,182,.55),0 8px 24px rgba(0,0,0,.45)}50%{box-shadow:0 0 0 12px rgba(244,114,182,0),0 8px 24px rgba(0,0,0,.45)}}
+  @keyframes ax-peek{0%,70%,100%{transform:translate(calc(-100% + 58px),-50%)}80%,90%{transform:translate(calc(-100% + 92px),-50%)}}
+  @keyframes ax-twinkle{0%,100%{opacity:.2; transform:scale(.6) rotate(0)}50%{opacity:1; transform:scale(1.2) rotate(30deg)}}
+
+  /* ---------- Fondo difuminado ---------- */
+  .ax-overlay{
+    position:fixed; inset:0; z-index:1000; display:none; align-items:center; justify-content:center; padding:16px;
+    background:rgba(10,4,16,.45); backdrop-filter:blur(14px) brightness(.7); -webkit-backdrop-filter:blur(14px) brightness(.7);
+  }
+  .ax-overlay.open{display:flex; animation:ax-fade .25s ease}
+  @keyframes ax-fade{from{opacity:0}to{opacity:1}}
+  @keyframes ax-pop{from{opacity:0; transform:scale(.92) translateY(14px)}to{opacity:1; transform:none}}
+
+  .ax-modal{
+    position:relative; width:min(1000px,100%); max-height:92vh; overflow:auto;
+    background:#1f1633; border:2px solid #fff; border-radius:24px; padding:26px 28px 28px; color:#fff;
+    font-family:"Poppins","Segoe UI",system-ui,sans-serif; box-shadow:0 24px 80px rgba(0,0,0,.6);
+    animation:ax-pop .3s cubic-bezier(.2,1.2,.4,1);
+  }
+  .ax-close{position:absolute; top:14px; right:14px; width:38px; height:38px; border-radius:50%; border:2px solid #fff; background:transparent; color:#fff; font-size:18px; cursor:pointer; transition:.2s}
+  .ax-close:hover{background:#f472b6; transform:rotate(90deg)}
+
+  /* ---------- Calendario ---------- */
+  .ax-head{display:flex; align-items:center; justify-content:center; gap:16px; margin:2px 40px 18px}
+  .ax-head h2{margin:0; font-size:1.5rem; min-width:210px; text-align:center; background:linear-gradient(90deg,#c4b5fd,#f9a8d4); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .ax-nav{width:38px; height:38px; border-radius:50%; border:2px solid #fff; background:transparent; color:#fff; font-size:16px; cursor:pointer; transition:.2s}
+  .ax-nav:hover{background:linear-gradient(135deg,#a78bfa,#f472b6)}
+  .ax-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:8px}
+  .ax-dow{text-align:center; font-size:.75rem; font-weight:700; letter-spacing:.08em; color:#f9a8d4; padding-bottom:4px}
+  .ax-day{
+    position:relative; min-height:78px; padding:8px; border-radius:14px; border:1.5px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.04); color:#fff; text-align:left; font:inherit; cursor:default; overflow:hidden;
+    display:flex; flex-direction:column; justify-content:space-between; transition:.2s;
+  }
+  .ax-day.empty{border:none; background:none}
+  .ax-day .n{font-weight:700; font-size:.95rem; opacity:.75}
+  .ax-day .g{font-size:.68rem; line-height:1.15; font-weight:600; color:#fff; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+  .ax-day.has{cursor:pointer; border-color:#fff; background:linear-gradient(160deg,rgba(167,139,250,.28),rgba(244,114,182,.28))}
+  .ax-day.has .n{opacity:1}
+  .ax-day.has:hover,.ax-day.has:focus-visible{transform:translateY(-4px) scale(1.04); box-shadow:0 10px 24px rgba(244,114,182,.35); outline:none}
+  .ax-day.today{box-shadow:inset 0 0 0 2px #f9a8d4}
+  .ax-day.today .n::after{content:" · hoy"; font-size:.65rem; color:#f9a8d4}
+  .ax-foot{margin-top:16px; text-align:center; font-size:.8rem; opacity:.7}
+
+  /* ---------- Detalle del día ---------- */
+  .ax-detail{display:none; grid-template-columns:minmax(0,5fr) minmax(0,7fr); gap:32px; align-items:center; padding:8px 4px}
+  .ax-modal.detail .ax-detail{display:grid}
+  .ax-modal.detail .ax-cal{display:none}
+  .ax-cover{aspect-ratio:3/4; border-radius:18px; border:2px solid #fff; background:#000 center/cover no-repeat; display:flex; align-items:flex-end; justify-content:center; overflow:hidden; box-shadow:0 14px 40px rgba(0,0,0,.5); animation:ax-pop .35s ease}
+  .ax-cover.noimg{background:linear-gradient(160deg,#a78bfa,#f472b6 70%,#1f1633); align-items:center; font-size:3rem}
+  .ax-info{display:flex; flex-direction:column; gap:10px; animation:ax-pop .4s ease .05s both}
+  .ax-info .lbl{font-size:.75rem; letter-spacing:.14em; font-weight:700; color:#f9a8d4}
+  .ax-info .name{font-size:clamp(1.8rem,4vw,2.8rem); font-weight:800; line-height:1.1; margin:0 0 14px}
+  .ax-info .time{font-size:clamp(1.5rem,3.4vw,2.4rem); font-weight:800; background:linear-gradient(90deg,#c4b5fd,#f9a8d4); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .ax-info .zone{font-size:.8rem; opacity:.7}
+  .ax-info .date{font-size:.95rem; opacity:.85; text-transform:capitalize}
+  .ax-back{align-self:flex-start; margin-top:18px; padding:10px 20px; border-radius:999px; border:2px solid #fff; background:transparent; color:#fff; font:700 .85rem inherit; font-family:inherit; cursor:pointer; transition:.2s}
+  .ax-back:hover{background:linear-gradient(135deg,#a78bfa,#f472b6)}
+
+  @media (max-width:640px){
+    .ax-tab{padding:10px 10px 10px 14px; transform:translate(calc(-100% + 50px),-50%)}
+    .ax-modal{padding:20px 14px}
+    .ax-grid{gap:4px}
+    .ax-day{min-height:56px; padding:5px; border-radius:10px}
+    .ax-day .g{display:none}
+    .ax-day.has::after{content:""; position:absolute; right:6px; bottom:6px; width:8px; height:8px; border-radius:50%; background:#f472b6}
+    .ax-detail{grid-template-columns:1fr; gap:18px; text-align:center}
+    .ax-cover{max-width:240px; margin:0 auto}
+    .ax-back{align-self:center}
+  }
+  @media (prefers-reduced-motion:reduce){.ax-tab,.ax-spark{animation:none}}
+</style>
+
+<!-- Pestaña -->
+<button class="ax-tab" id="axTab" aria-haspopup="dialog" aria-label="Abrir calendario de juegos">
+  <span class="ax-txt">CALENDARIO<small>¿qué juego hoy?</small></span>
+  <span class="ax-ico"><svg viewBox="0 0 40 40" aria-hidden="true">
+      <g class="ear l"><path d="M3 2 L18 12 L5 21 Z" fill="#fff"/><path d="M7 8 L14 13 L7 17 Z" fill="#f472b6"/></g>
+      <g class="ear r"><path d="M37 2 L22 12 L35 21 Z" fill="#fff"/><path d="M33 8 L26 13 L33 17 Z" fill="#f472b6"/></g>
+      <path d="M4 19 Q20 7 36 19 L39 27 L31 28 L20 37 L9 28 L1 27 Z" fill="#fff"/>
+      <path d="M20 12 L22 15 L20 18 L18 15 Z" fill="#e0559f"/>
+      <path d="M8 24 L13 25 M7 28 L12 28 M32 24 L27 25 M33 28 L28 28" stroke="#e0559f" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+      <path d="M10 22 Q13.5 18.5 17 22 M23 22 Q26.5 18.5 30 22" stroke="#5b2a86" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <path d="M18 28 Q20 30 22 28 Z" fill="#5b2a86"/>
+      <path d="M20 30 L20 32 M17.5 33 Q20 34.5 22.5 33" stroke="#5b2a86" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+    </svg></span>
+  <span class="ax-spark a">✦</span><span class="ax-spark b">✦</span>
+</button>
+
+<!-- Calendario -->
+<div class="ax-overlay" id="axOverlay" role="dialog" aria-modal="true" aria-label="Calendario de juegos">
+  <div class="ax-modal" id="axModal">
+    <button class="ax-close" id="axClose" aria-label="Cerrar">✕</button>
+
+    <div class="ax-cal">
+      <div class="ax-head">
+        <button class="ax-nav" id="axPrev" aria-label="Mes anterior">◀</button>
+        <h2 id="axTitle"></h2>
+        <button class="ax-nav" id="axNext" aria-label="Mes siguiente">▶</button>
+      </div>
+      <div class="ax-grid" id="axGrid"></div>
+      <div class="ax-foot">Toca un día marcado para ver el juego y el horario ✨</div>
+    </div>
+
+    <div class="ax-detail" id="axDetail">
+      <div class="ax-cover" id="axCover"></div>
+      <div class="ax-info">
+        <span class="lbl">JUEGO</span>
+        <h3 class="name" id="axName"></h3>
+        <span class="lbl">HORARIO</span>
+        <span class="time" id="axTime"></span>
+        <span class="zone" id="axZone"></span>
+        <span class="date" id="axDate"></span>
+        <button class="ax-back" id="axBack">← Volver al calendario</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  /* =====================  TU HORARIO  =====================
+     fechas: un juego en un día exacto  ("AAAA-MM-DD")
+     semanal: se repite cada semana (0=domingo, 1=lunes ... 6=sábado)
+     Si un día está en "fechas" y en "semanal", gana "fechas".
+     portada: ruta de la imagen (ej. "img/mi-juego.jpg"); si la dejas vacía sale un fondo de color.
+     Los datos de abajo son SOLO DE EJEMPLO, cámbialos por los tuyos. */
+  var CONFIG = {
+    zona: "Hora de México (CDMX)",
+    semanal: {
+      // 1: { juego: "Nombre del juego", hora: "8:00 PM", portada: "img/juego.jpg" },
+    },
+    fechas: {
+      "2026-10-12": { juego: "Juego de ejemplo 1", hora: "8:00 PM", portada: "" },
+      "2026-10-14": { juego: "Juego de ejemplo 2", hora: "7:30 PM", portada: "" },
+      "2026-10-16": { juego: "Juego de ejemplo 3", hora: "9:00 PM", portada: "" },
+      "2026-10-18": { juego: "Juego de ejemplo 4", hora: "6:00 PM", portada: "" }
+    }
+  };
+  /* ========================================================= */
+
+  var MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+  var DIAS  = ["LUN","MAR","MIÉ","JUE","VIE","SÁB","DOM"];
+  var $ = function(id){return document.getElementById(id)};
+  var overlay=$("axOverlay"), modal=$("axModal"), grid=$("axGrid");
+  var hoy=new Date(), vista=new Date(hoy.getFullYear(), hoy.getMonth(), 1), lastFocus=null;
+
+  function key(y,m,d){ return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0"); }
+  function entrada(y,m,d){
+    var k=key(y,m,d);
+    if(CONFIG.fechas[k]) return CONFIG.fechas[k];
+    return CONFIG.semanal[new Date(y,m,d).getDay()] || null;
+  }
+
+  function render(){
+    var y=vista.getFullYear(), m=vista.getMonth();
+    $("axTitle").textContent = MESES[m]+" "+y;
+    grid.innerHTML="";
+    DIAS.forEach(function(d){ var e=document.createElement("div"); e.className="ax-dow"; e.textContent=d; grid.appendChild(e); });
+    var primero=(new Date(y,m,1).getDay()+6)%7;           // lunes = 0
+    var total=new Date(y,m+1,0).getDate();
+    for(var i=0;i<primero;i++){ var v=document.createElement("div"); v.className="ax-day empty"; grid.appendChild(v); }
+    for(var d=1; d<=total; d++){
+      var info=entrada(y,m,d);
+      var b=document.createElement(info?"button":"div");
+      b.className="ax-day"+(info?" has":"")+((y===hoy.getFullYear()&&m===hoy.getMonth()&&d===hoy.getDate())?" today":"");
+      b.innerHTML='<span class="n">'+d+'</span>'+(info?'<span class="g"></span>':'');
+      if(info){
+        b.querySelector(".g").textContent=info.juego;
+        b.setAttribute("aria-label","Día "+d+": "+info.juego+", "+info.hora);
+        (function(dd,inf){ b.addEventListener("click",function(){ mostrar(y,m,dd,inf); }); })(d,info);
+      }
+      grid.appendChild(b);
+    }
+  }
+
+  function mostrar(y,m,d,info){
+    var c=$("axCover");
+    if(info.portada){ c.className="ax-cover"; c.style.backgroundImage='url("'+info.portada+'")'; c.textContent=""; }
+    else{ c.className="ax-cover noimg"; c.style.backgroundImage=""; c.textContent="🎮"; }
+    $("axName").textContent=info.juego;
+    $("axTime").textContent=info.hora;
+    $("axZone").textContent=CONFIG.zona;
+    $("axDate").textContent=new Date(y,m,d).toLocaleDateString("es-MX",{weekday:"long",day:"numeric",month:"long"});
+    modal.classList.add("detail");
+    $("axBack").focus();
+  }
+
+  function abrir(){ lastFocus=document.activeElement; modal.classList.remove("detail"); vista=new Date(hoy.getFullYear(),hoy.getMonth(),1); render(); overlay.classList.add("open"); document.body.style.overflow="hidden"; $("axClose").focus(); }
+  function cerrar(){ overlay.classList.remove("open"); document.body.style.overflow=""; if(lastFocus) lastFocus.focus(); }
+
+  $("axTab").addEventListener("click",abrir);
+  $("axClose").addEventListener("click",cerrar);
+  $("axBack").addEventListener("click",function(){ modal.classList.remove("detail"); });
+  $("axPrev").addEventListener("click",function(){ vista.setMonth(vista.getMonth()-1); render(); });
+  $("axNext").addEventListener("click",function(){ vista.setMonth(vista.getMonth()+1); render(); });
+  overlay.addEventListener("click",function(e){ if(e.target===overlay) cerrar(); });
+  document.addEventListener("keydown",function(e){
+    if(!overlay.classList.contains("open")) return;
+    if(e.key==="Escape"){ modal.classList.contains("detail") ? modal.classList.remove("detail") : cerrar(); }
+  });
+})();
+</script>
+
 </body>
 </html>
