@@ -610,27 +610,16 @@ function inyectar(cont,html){
   </div>
 </div>
 
+<script src="horario.js"></script>
 <script>
 (function(){
-  /* =====================  TU HORARIO  =====================
-     fechas: un juego en un día exacto  ("AAAA-MM-DD")
-     semanal: se repite cada semana (0=domingo, 1=lunes ... 6=sábado)
-     Si un día está en "fechas" y en "semanal", gana "fechas".
-     portada: ruta de la imagen (ej. "img/mi-juego.jpg"); si la dejas vacía sale un fondo de color.
-     Los datos de abajo son SOLO DE EJEMPLO, cámbialos por los tuyos. */
+  /* El horario se lee del archivo horario.js (lo genera el editor de horario). */
+  var H = window.HORARIO || {};
   var CONFIG = {
-    zona: "Hora de México (CDMX)",
-    semanal: {
-      // 1: { juego: "Nombre del juego", hora: "8:00 PM", portada: "img/juego.jpg" },
-    },
-    fechas: {
-      "2026-10-12": { juego: "Juego de ejemplo 1", hora: "8:00 PM", portada: "" },
-      "2026-10-14": { juego: "Juego de ejemplo 2", hora: "7:30 PM", portada: "" },
-      "2026-10-16": { juego: "Juego de ejemplo 3", hora: "9:00 PM", portada: "" },
-      "2026-10-18": { juego: "Juego de ejemplo 4", hora: "6:00 PM", portada: "" }
-    }
+    zona: H.zona || "Hora de México (CDMX)",
+    semanal: H.semanal || {},
+    fechas: H.fechas || {}
   };
-  /* ========================================================= */
 
   var MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
   var DIAS  = ["LUN","MAR","MIÉ","JUE","VIE","SÁB","DOM"];
