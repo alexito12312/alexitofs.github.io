@@ -283,7 +283,10 @@ CANALES.forEach(function(c){
   var cont=document.getElementById("correo");
   if(!CORREO)return;
   var a=el("a","cta","✉ Enviar correo");
-  a.href="mailto:"+CORREO+"?subject="+encodeURIComponent("Colaboración con Alexito FS");
+  /* Abre directamente la redacción de Gmail con el destinatario y el asunto listos
+     (mailto: no hace nada si el dispositivo no tiene una app de correo configurada). */
+  a.href="https://mail.google.com/mail/?view=cm&fs=1&to="+encodeURIComponent(CORREO)+"&su="+encodeURIComponent("Colaboración con Alexito FS");
+  a.target="_blank";a.rel="noopener";
   var fila=el("div","mail");
   var code=el("code",null,CORREO);
   var btn=el("button","copiar","Copiar");btn.type="button";
