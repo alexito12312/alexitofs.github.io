@@ -69,6 +69,14 @@ body.noscroll{overflow:hidden}
 .act:disabled{opacity:.5;cursor:not-allowed}
 .avt-note{margin:12px 0 0;font-size:.78rem;color:rgba(255,255,255,.8)}
 @media (max-width:760px){.avt-grid{grid-template-columns:1fr}.avt-view{position:relative;top:0;max-width:420px;margin:0 auto;width:100%}}
+
+.avt-zoom{position:absolute;right:10px;bottom:10px;z-index:5;display:flex;gap:6px;align-items:center}
+.zb{width:38px;height:38px;border-radius:50%;border:2px solid #fff;background:rgba(0,0,0,.55);color:#fff;font:800 1.15rem/1 "Nunito","Segoe UI",system-ui,sans-serif;cursor:pointer;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.zb:hover:not(:disabled){background:linear-gradient(135deg,#a78bfa,#f472b6)}
+.zb:disabled{opacity:.45;cursor:not-allowed}
+.zb:focus-visible{outline:3px solid #f472b6;outline-offset:2px}
+.avt-view canvas.pan{cursor:grab}.avt-view canvas.pan:active{cursor:grabbing}
+.avt-tip{position:absolute;left:10px;bottom:12px;z-index:5;font-size:.72rem;color:rgba(255,255,255,.85);text-shadow:0 1px 4px #000;pointer-events:none}
 </style>
 </head>
 <body>
@@ -106,6 +114,8 @@ body.noscroll{overflow:hidden}
       <div class="avt-view" id="avtView">
         <canvas id="avtCanvas" aria-label="Vista previa del avatar"></canvas>
         <div class="avt-msg" id="avtMsg">Cargando avatar…</div>
+        <div class="avt-zoom"><button type="button" class="zb" id="zMenos" aria-label="Alejar" disabled>−</button><button type="button" class="zb" id="zMas" aria-label="Acercar" disabled>+</button><button type="button" class="zb" id="zRes" aria-label="Restablecer zoom" disabled>⟲</button></div>
+        <div class="avt-tip" id="avtTip">Zoom: botones, Ctrl + rueda o pellizco</div>
       </div>
       <div class="avt-panel" id="avtPanel"></div>
     </div>
@@ -123,7 +133,7 @@ body.noscroll{overflow:hidden}
 </div>
 
 <script>
-console.info("Alexito FS · versión 2026-10-10-f (fanarts.html)");
+console.info("Alexito FS · versión 2026-10-10-g (fanarts.html)");
 (function(){
   var sl=[].slice.call(document.querySelectorAll(".sl")),N=sl.length,cur=0,timer=null;
   var reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -252,7 +262,7 @@ console.info("Alexito FS · versión 2026-10-10-f (fanarts.html)");
   [bAle,bRes,bDes].forEach(function(b){b.type="button";b.disabled=true;acts.appendChild(b)});
   panel.appendChild(acts);
   panel.appendChild(mk("p","avt-note","La imagen se descarga con fondo transparente. Es un modelo mío: úsalo sólo como referencia para tus fanarts, gracias 💜"));
-  function habilitar(v){botones.forEach(function(b){b.el.disabled=!v});[bAle,bRes,bDes].forEach(function(b){b.disabled=!v})}
+  function habilitar(v){botones.forEach(function(b){b.el.disabled=!v});[bAle,bRes,bDes].forEach(function(b){b.disabled=!v});if(v)vista()}
   bRes.onclick=function(){AVT_GRUPOS.forEach(function(g,i){estado[i]=g.tipo==="uno"?0:[]});pintar()};
   bAle.onclick=function(){
     AVT_GRUPOS.forEach(function(g,i){
@@ -282,9 +292,61 @@ console.info("Alexito FS · versión 2026-10-10-f (fanarts.html)");
     modelo.scale.set(1);
     var b=modelo.getLocalBounds?modelo.getLocalBounds():{width:modelo.width,height:modelo.height,x:0,y:0};
     var s=Math.min(w/b.width,h/b.height)*0.96;
-    modelo.scale.set(s);
-    modelo.x=w/2-(b.x+b.width/2)*s;modelo.y=h/2-(b.y+b.height/2)*s;
+    base.s=s;base.x=w/2-(b.x+b.width/2)*s;base.y=h/2-(b.y+b.height/2)*s;base.w=w;base.h=h;
+    vista();
   }
+  /* ----- zoom y arrastre ----- */
+  var base={s:1,x:0,y:0,w:300,h:400},Z={z:1,px:0,py:0},ZMIN=1,ZMAX=4;
+  function limitar(){
+    var m=(Z.z-1)*Math.max(base.w,base.h)*0.75;
+    Z.px=Math.max(-m,Math.min(m,Z.px));Z.py=Math.max(-m,Math.min(m,Z.py));
+    if(Z.z<=1.001){Z.px=0;Z.py=0}
+  }
+  function vista(){
+    if(!modelo)return;limitar();
+    var cx=base.w/2,cy=base.h/2;
+    modelo.scale.set(base.s*Z.z);
+    modelo.x=cx+(base.x-cx)*Z.z+Z.px;modelo.y=cy+(base.y-cy)*Z.z+Z.py;
+    canvas.classList.toggle("pan",Z.z>1.001);
+    canvas.style.touchAction=Z.z>1.001?"none":"pan-y";
+    document.getElementById("zMenos").disabled=Z.z<=ZMIN+0.001;
+    document.getElementById("zMas").disabled=Z.z>=ZMAX-0.001;
+    document.getElementById("zRes").disabled=Z.z<=1.001&&!Z.px&&!Z.py;
+  }
+  function zoomEn(nz,qx,qy){
+    nz=Math.max(ZMIN,Math.min(ZMAX,nz));
+    var cx=base.w/2,cy=base.h/2,k=nz/Z.z;
+    Z.px=qx-cx-(qx-cx-Z.px)*k;Z.py=qy-cy-(qy-cy-Z.py)*k;Z.z=nz;vista();
+  }
+  document.getElementById("zMas").onclick=function(){zoomEn(Z.z*1.35,base.w/2,base.h*0.3)};
+  document.getElementById("zMenos").onclick=function(){zoomEn(Z.z/1.35,base.w/2,base.h*0.3)};
+  document.getElementById("zRes").onclick=function(){Z.z=1;Z.px=0;Z.py=0;vista()};
+  canvas.addEventListener("wheel",function(e){
+    if(!e.ctrlKey&&!e.metaKey)return;
+    e.preventDefault();var r=canvas.getBoundingClientRect();
+    zoomEn(Z.z*Math.exp(-e.deltaY*0.0025),e.clientX-r.left,e.clientY-r.top);
+  },{passive:false});
+  var ptrs={},dist0=0,z0=1;
+  canvas.addEventListener("pointerdown",function(e){
+    ptrs[e.pointerId]={x:e.clientX,y:e.clientY};
+    try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+    var ks=Object.keys(ptrs);
+    if(ks.length===2){var a=ptrs[ks[0]],b=ptrs[ks[1]];dist0=Math.hypot(a.x-b.x,a.y-b.y);z0=Z.z}
+  });
+  canvas.addEventListener("pointermove",function(e){
+    var p=ptrs[e.pointerId];if(!p)return;
+    var ks=Object.keys(ptrs);
+    if(ks.length===2){
+      ptrs[e.pointerId]={x:e.clientX,y:e.clientY};
+      var a=ptrs[ks[0]],b=ptrs[ks[1]],r=canvas.getBoundingClientRect();
+      if(dist0>0)zoomEn(z0*Math.hypot(a.x-b.x,a.y-b.y)/dist0,(a.x+b.x)/2-r.left,(a.y+b.y)/2-r.top);
+    }else if(Z.z>1.001){
+      Z.px+=e.clientX-p.x;Z.py+=e.clientY-p.y;ptrs[e.pointerId]={x:e.clientX,y:e.clientY};vista();
+    }
+  });
+  function suelta(e){delete ptrs[e.pointerId]}
+  canvas.addEventListener("pointerup",suelta);canvas.addEventListener("pointercancel",suelta);
+  canvas.addEventListener("dblclick",function(){if(Z.z>1.001){Z.z=1;Z.px=0;Z.py=0;vista()}else zoomEn(2,base.w/2,base.h*0.3)});
   function iniciar(){
     var P=window.PIXI;
     if(!P||!P.live2d||!window.Live2DCubismCore)return falla("faltan librerías");
