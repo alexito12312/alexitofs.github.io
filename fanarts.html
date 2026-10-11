@@ -123,7 +123,7 @@ body.noscroll{overflow:hidden}
 </div>
 
 <script>
-console.info("Alexito FS · versión 2026-10-10-e (fanarts.html)");
+console.info("Alexito FS · versión 2026-10-10-f (fanarts.html)");
 (function(){
   var sl=[].slice.call(document.querySelectorAll(".sl")),N=sl.length,cur=0,timer=null;
   var reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -193,19 +193,21 @@ console.info("Alexito FS · versión 2026-10-10-e (fanarts.html)");
   /* tipo "uno": se elige una opción por grupo; "varios": se pueden activar varias.
      p = lista de [parámetro, valor]. La primera opción de cada grupo "uno" es la normal. */
   var AVT_GRUPOS=[
-    {t:"Color de pelo",tipo:"uno",o:[["Rosa",[]],["Blanco",[["Param16",-0.5]]],["Café",[["Param16",1]]],["Morado",[["Param16",-1]]]]},
-    {t:"Peinado",tipo:"uno",o:[["Normal",[]],["Pelo corto",[["Param10",-1]]],["Cola de caballo",[["Param15",-1]]],["Coletas",[["Param15",1]]]]},
-    {t:"Traje",tipo:"uno",o:[["Sudadera",[]],["Oversize",[["Param12",0.5]]],["Fitness",[["Param12",1]]],["Vendas",[["Param12",-0.5]]],["Ropa Vaporeon",[["Param12",-1]]],["Outfit 2",[["Param",1]]],["Bikini",[["Param",-1]]]]},
+    {t:"Color de pelo",tipo:"uno",o:[["Rosa",[]],["Blanco",[],"blanco"],["Café",[],"cafe"],["Morado",[],"morado"]]},
+    {t:"Peinado",tipo:"uno",o:[["Normal",[]],["Pelo corto",[["Param10",-1]]],["Cola de caballo",[["Param15",-1],["Param10",-1]]],["Coletas",[["Param15",1],["Param10",-1]]]]},
+    {t:"Traje",tipo:"uno",o:[["Kimono",[]],["Casual",[["Param12",0.5]]],["Fitness",[["Param12",1]]],["Vendas",[["Param12",-0.5]]],["Ropa Vaporeon",[["Param12",-1]]],["Sudadera",[["Param",1]]],["Bikini",[["Param",-1]]]]},
     {t:"Expresión",tipo:"uno",o:[["Normal",[]],["Alegre",[["ParamEyeLSmile",1],["ParamEyeRSTYLE",1],["ParamBrowLY",0.5],["ParamBrowRY",0.5],["ParamMouthForm",0.6]]],
       ["=.=",[["ParamEyeLSmile",3],["ParamEyeRSTYLE",3],["ParamBrowLForm",-1],["ParamBrowRForm",-1],["ParamMouthForm",-0.38]]],
       ["o.o",[["ParamEyeLSmile",2],["ParamEyeRSTYLE",2],["ParamBrowLForm",2],["ParamBrowRForm",2],["ParamMouthForm",-0.2]]],
       ["Hump",[["ParamEyeLOpen",-0.1],["ParamEyeROpen",-0.2],["ParamBrowLForm",-1],["ParamBrowRForm",-1],["ParamMouthForm",1.6]]],
       ["Sorpresa",[["Surprise",2]]],
       ["Lágrimas",[["Param8",1],["ParamBrowLForm",1],["ParamBrowRForm",1],["ParamMouthForm",-0.4]]],
-      ["Miedo",[["Param8",-1],["EyeBright",-1]]]]},
-    {t:"Extras",tipo:"varios",o:[["Sonrojo",[["blush",1]]],["Sin cola",[["Param9",-1]]],["Medias",[["Param11",-1]]],["Vaporeon en brazos",[["ParamShoulderLRotation",60]]],["Saludo",[["ParamShoulderRRotation",60],["ParamMouthForm",0.35]]],["Manos fuera",[["Param13",2]]]]}
+      ["Miedo",[["Param8",-1],["EyeBright",-1]]],
+      ["Sonrojado",[["blush",1]]]]},
+    {t:"Extras",tipo:"varios",o:[["Sin cola",[["Param9",-1]]],["Medias",[["Param11",-1]]],["Vaporeon en brazos",[["ParamShoulderLRotation",60]]],["Saludo",[["ParamShoulderRRotation",60],["ParamMouthForm",0.35]]]]}
   ];
   var panel=document.getElementById("avtPanel"),msg=document.getElementById("avtMsg"),canvas=document.getElementById("avtCanvas");
+  var orig=null,texAct=null,cacheTex={};
   var estado=AVT_GRUPOS.map(function(g){return g.tipo==="uno"?0:[]}),botones=[],modelo=null,app=null;
   function mk(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
   function activos(){
@@ -216,7 +218,15 @@ console.info("Alexito FS · versión 2026-10-10-e (fanarts.html)");
     });
     return out;
   }
+  function aplicarTextura(){
+    if(!modelo||!window.PIXI||!orig)return;
+    var k=AVT_GRUPOS[0].o[estado[0]][2]||null;
+    if(k===texAct)return;texAct=k;
+    var t=k?(cacheTex[k]||(cacheTex[k]=window.PIXI.Texture.from("avatar/texture_"+k+".webp"))):orig;
+    modelo.textures[0]=t;
+  }
   function pintar(){
+    aplicarTextura();
     botones.forEach(function(b){
       var g=AVT_GRUPOS[b.g],on=g.tipo==="uno"?estado[b.g]===b.k:estado[b.g].indexOf(b.k)>-1;
       b.el.setAttribute("aria-pressed",on?"true":"false");
@@ -280,7 +290,7 @@ console.info("Alexito FS · versión 2026-10-10-e (fanarts.html)");
     if(!P||!P.live2d||!window.Live2DCubismCore)return falla("faltan librerías");
     app=new P.Application({view:canvas,transparent:true,backgroundAlpha:0,autoStart:true,antialias:true,resolution:Math.min(window.devicePixelRatio||1,2),autoDensity:true,preserveDrawingBuffer:true,width:canvas.clientWidth||300,height:canvas.clientHeight||400});
     P.live2d.Live2DModel.from(RUTA,{autoInteract:false}).then(function(m){
-      modelo=m;app.stage.addChild(m);ajustar();
+      modelo=m;orig=m.textures[0];app.stage.addChild(m);ajustar();
       var core=m.internalModel.coreModel;
       m.internalModel.on("beforeModelUpdate",function(){
         var a=activos();
