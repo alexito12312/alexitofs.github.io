@@ -225,13 +225,14 @@ footer,footer a{color:rgba(255,255,255,.88)}
   <footer>© Alexito FS · <a href="index.html">Volver al inicio</a></footer>
 </div>
 
+<script src="config.js"></script>
 <script>
 console.info("Alexito FS · versión 2026-10-10-d (contacto.html)");
 /* ===== Configuración =====
    CORREO: escribe aquí tu correo de contacto para empresas.
    Si lo dejas vacío, la página muestra solo los mensajes directos. */
-var CORREO="alexitocontact@gmail.com";
-var API_KEY="AIzaSyBFD2-NxCEVuwrfPiB2h8r4cK4mwBP2NYQ";
+var CORREO=["alexitocontact","gmail.com"].join("@"); /* armado al cargar para que los bots no lo lean del HTML */
+var API_KEY=(window.SITE&&window.SITE.API_KEY)||"";
 var CANALES=[
  {id:"UCDvvxJXVEFfpdq28KPB2Y4w",handle:"Alexito_FS",nombre:"Alexito_FS",desc:"Canal principal"},
  {id:"UCE8pOC4dVQ2EmHbj5xILs3Q",handle:"AlexitoFSLargos",nombre:"Videos largos",desc:"Juegos largos y campañas"},
@@ -256,6 +257,7 @@ CANALES.forEach(function(c){
 
 /* Suscriptores en vivo (si la API responde) */
 (async function(){
+  if(!API_KEY)return; /* sin clave: se omite el conteo en vivo */
   try{
     var r=await fetch("https://www.googleapis.com/youtube/v3/channels?part=statistics&id="+CANALES.map(function(c){return c.id}).join(",")+"&key="+API_KEY);
     if(!r.ok){var cuerpo="";try{cuerpo=(await r.text()).slice(0,400)}catch(e0){}throw new Error("api "+r.status+" "+cuerpo)}

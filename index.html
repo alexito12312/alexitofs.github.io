@@ -214,13 +214,14 @@ footer{color:rgba(255,255,255,.8)}
   <footer>© Alexito FS · Hecho con cariño 💜</footer>
 </div>
 
+<script src="config.js"></script>
 <script>
 console.info("Alexito FS · versión 2026-10-10-d (index.html)");
 /* ===== Configuración =====
    API_KEY (opcional): clave gratis de la YouTube Data API v3. Con ella salen
    vistas, Shorts, suscriptores al día y foto real. Sin ella, los videos se
    leen del feed público (título, miniatura y fecha). */
-var CONFIG={API_KEY:"AIzaSyBFD2-NxCEVuwrfPiB2h8r4cK4mwBP2NYQ",POR_CANAL:4};
+var CONFIG={API_KEY:(window.SITE&&window.SITE.API_KEY)||"",POR_CANAL:4};
 var CANALES=[
  {id:"UCDvvxJXVEFfpdq28KPB2Y4w",handle:"Alexito_FS",nombre:"Alexito_FS"},
  {id:"UCE8pOC4dVQ2EmHbj5xILs3Q",handle:"AlexitoFSLargos",nombre:"Videos largos"},
