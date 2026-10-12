@@ -4,5 +4,5 @@
    y solo "YouTube Data API v3"). Si la dejas vacía, la web usa el feed público
    (sin vistas ni suscriptores al día) y sigue funcionando. */
 window.SITE = {
-  API_KEY: ""
+  API_KEY: "AIzaSyDuTpJCgF1IcKH1b7voJ0FsOL2kLu_bwH4"
 };
