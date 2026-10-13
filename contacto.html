@@ -350,5 +350,54 @@ var STATS={
   if(alguno&&STATS.actualizado&&nota){nota.textContent="Cifras al "+STATS.actualizado+".";nota.hidden=false}
 })();
 </script>
+<!-- ===== PESTAÑA CONTENIDO 18 (derecha) + VIDEO ===== -->
+<style>
+  .cx-tab{
+    position:fixed; right:0; top:50%; transform:translate(calc(100% - 58px),-50%);
+    z-index:900; display:flex; align-items:center; gap:10px;
+    padding:14px 18px 14px 14px; cursor:pointer; border:2px solid #fff; border-right:none;
+    border-radius:22px 0 0 22px;
+    background:linear-gradient(135deg,#f472b6,#a78bfa);
+    color:#fff; font:800 14px/1 "Poppins","Segoe UI",system-ui,sans-serif; letter-spacing:.06em;
+    box-shadow:0 0 0 0 rgba(167,139,250,.6), 0 8px 24px rgba(0,0,0,.45);
+    animation:cx-pulse 2.4s ease-in-out infinite, cx-peek 5s ease-in-out 3s infinite;
+    transition:transform .35s cubic-bezier(.2,1.4,.4,1), filter .2s;
+  }
+  .cx-tab:hover,.cx-tab:focus-visible{transform:translate(0,-50%); filter:brightness(1.1); animation:cx-pulse 2.4s ease-in-out infinite; outline:none}
+  .cx-tab .cx-ico{width:38px; height:38px; flex:none; display:grid; place-items:center; border-radius:50%; background:#fff; color:#e0559f; font-size:16px; padding-left:3px}
+  .cx-tab .cx-txt{display:flex; flex-direction:column; gap:3px; white-space:nowrap}
+  .cx-tab .cx-txt small{font-size:10px; font-weight:600; opacity:.9; letter-spacing:.04em}
+  @keyframes cx-pulse{0%,100%{box-shadow:0 0 0 0 rgba(167,139,250,.55),0 8px 24px rgba(0,0,0,.45)}50%{box-shadow:0 0 0 12px rgba(167,139,250,0),0 8px 24px rgba(0,0,0,.45)}}
+  @keyframes cx-peek{0%,70%,100%{transform:translate(calc(100% - 58px),-50%)}80%,90%{transform:translate(calc(100% - 92px),-50%)}}
+  .cx-overlay{position:fixed; inset:0; z-index:1000; display:none; align-items:center; justify-content:center; padding:16px;
+    background:rgba(10,4,16,.45); backdrop-filter:blur(14px) brightness(.7); -webkit-backdrop-filter:blur(14px) brightness(.7)}
+  .cx-overlay.open{display:flex}
+  .cx-modal{position:relative; width:min(560px,100%); background:#1f1633; border:2px solid #fff; border-radius:24px; padding:18px; box-shadow:0 24px 80px rgba(0,0,0,.6)}
+  .cx-modal video{display:block; width:100%; max-height:80vh; aspect-ratio:1/1; object-fit:contain; border-radius:14px; background:#000}
+  .cx-close{position:absolute; top:-14px; right:-14px; width:38px; height:38px; border-radius:50%; border:2px solid #fff; background:#1f1633; color:#fff; font-size:18px; cursor:pointer; transition:.2s}
+  .cx-close:hover{background:#f472b6; transform:rotate(90deg)}
+  @media (max-width:640px){.cx-tab{padding:10px 14px 10px 10px; transform:translate(calc(100% - 50px),-50%)} .cx-close{top:-10px; right:-6px}}
+  @media (prefers-reduced-motion:reduce){.cx-tab{animation:none}}
+</style>
+<button class="cx-tab" id="cxTab" type="button" aria-haspopup="dialog" aria-label="Ver Contenido 18">
+  <span class="cx-ico" aria-hidden="true">▶</span>
+  <span class="cx-txt">CONTENIDO 18<small>toca para ver el video</small></span>
+</button>
+<div class="cx-overlay" id="cxOverlay" role="dialog" aria-modal="true" aria-label="Contenido 18">
+  <div class="cx-modal">
+    <button class="cx-close" id="cxClose" type="button" aria-label="Cerrar">✕</button>
+    <video id="cxVideo" src="contenido18.mp4" controls playsinline preload="none"></video>
+  </div>
+</div>
+<script>
+(function(){
+  var t=document.getElementById("cxTab"),o=document.getElementById("cxOverlay"),v=document.getElementById("cxVideo"),c=document.getElementById("cxClose");
+  function abrir(){o.classList.add("open");try{v.currentTime=0}catch(e){}var p=v.play();if(p&&p.catch)p.catch(function(){})}
+  function cerrar(){o.classList.remove("open");v.pause();t.focus()}
+  t.addEventListener("click",abrir);c.addEventListener("click",cerrar);
+  o.addEventListener("click",function(e){if(e.target===o)cerrar()});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"&&o.classList.contains("open"))cerrar()});
+})();
+</script>
 </body>
 </html>
