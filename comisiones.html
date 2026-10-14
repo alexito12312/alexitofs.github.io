@@ -980,9 +980,9 @@ const PK=[
   {id:"web",n:"Página web",p:"Por cotizar"},{id:"soft",n:"Software",p:"Por cotizar"},{id:"app",n:"App",p:"Por cotizar"}
 ];
 const PAY_LINKS={
-  v1:"https://buy.stripe.com/00w4gs9MLc0ndIYalqa7C06",
-  v3:"https://buy.stripe.com/7sY00c3on6G38oEalqa7C01",
-  v5:"https://buy.stripe.com/aFa6oA3on7K7awM79ea7C02"
+  v1:"https://buy.stripe.com/cNi9AMe314xV5csbpua7C03",
+  v3:"https://buy.stripe.com/6oUcMYgb9c0n48odxCa7C04",
+  v5:"https://buy.stripe.com/9B614g5wvfcz48oeBGa7C05"
 };
 /* Avisos por correo con EmailJS (gratis, sin tarjeta). Vacío = sin avisos. Ver la nota "Comisiones - Avisos por correo". */
 const EMAILJS={service:"service_lrkq0yr",template:"template_nw65o6l",key:"D5ux-nYroknsRB64B"};
@@ -1091,8 +1091,17 @@ function render(){
   const sb=el("button","btn","Enviar"); sb.type="button";
   const go=async()=>{const t=ta.value.trim(); if(!t) return; ta.value=""; await send({kind:"text",text:t}); notify("Mensaje de "+(order.name||"cliente"),t);};
   sb.onclick=go; ta.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault(); go();}});
-  cp.appendChild(ta); cp.appendChild(sb); chat.appendChild(cp); view.appendChild(chat); if(!admin) view.appendChild(el("p","note priv","No compartas contraseñas, datos de tarjeta ni información personal delicada en este chat."));
+  cp.appendChild(ta); cp.appendChild(sb); chat.appendChild(cp); view.appendChild(chat); const dl=el("button","btn ghost","Descargar copia del pedido y chat"); dl.type="button"; dl.onclick=downloadCopy; view.appendChild(dl); if(!admin) view.appendChild(el("p","note priv","No compartas contraseñas, datos de tarjeta ni información personal delicada en este chat."));
   drawMsgs();
+}
+function copyText(o,ms){
+  const L=["PEDIDO · "+(o.pkgName||"")+" · "+(o.price||""),"Nombre: "+(o.name||""),"Contacto: "+(o.contact||""),"Idea: "+(o.idea||""),"Clips: "+(o.links||""),"Estado: "+(ST[o.status]||o.status||""),"","CHAT"];
+  ms.forEach(m=>L.push("["+fmt(m.at)+"] "+(m.kind==="system"?"Sistema":m.from==="owner"?"Alexito":"Cliente")+": "+(m.text||"")+(m.url?" "+m.url:"")));
+  return L.join("\n");
+}
+function downloadCopy(){
+  const b=new Blob([copyText(order,msgs)],{type:"text/plain;charset=utf-8"}), a=document.createElement("a");
+  a.href=URL.createObjectURL(b); a.download="pedido-alexito.txt"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
 }
 function drawMsgs(){
   if(!msgBox) return; const stick=msgBox.scrollTop+msgBox.clientHeight>=msgBox.scrollHeight-40; msgBox.textContent="";
