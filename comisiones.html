@@ -961,7 +961,7 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import {initializeAppCheck,ReCaptchaV3Provider} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app-check.js";
 import {getAuth,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import {getFirestore,doc,setDoc,updateDoc,collection,addDoc,query,orderBy,limit,onSnapshot} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import {getFirestore,doc,setDoc,updateDoc,deleteDoc,getDocs,collection,addDoc,query,orderBy,limit,onSnapshot} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 /* ====== Ajustes de Alexito (editar aquí) ====== */
 const firebaseConfig={
@@ -1130,7 +1130,24 @@ function adminControls(){
   const ur=el("input"); ur.type="url"; ur.placeholder="Enlace de pago https://…";
   const sp=el("button","btn ghost","Mandar enlace de pago"); sp.type="button";
   sp.onclick=async()=>{const u=ur.value.trim(); if(!okUrl(u)) return; await send({kind:"pay",url:u,amount:am.value.trim(),text:"Aquí está tu enlace de pago:"}); ur.value=""; am.value="";};
-  r2.appendChild(am); r2.appendChild(ur); r2.appendChild(sp); c.appendChild(r2); view.appendChild(c);
+  r2.appendChild(am); r2.appendChild(ur); r2.appendChild(sp); c.appendChild(r2);
+  const r3=el("div","ctl"), ar=el("button","btn ghost","Archivar pedido"); ar.type="button"; let armed=false, aT=0;
+  const msg=el("p","note"); msg.hidden=true;
+  ar.onclick=async()=>{
+    if(!armed){armed=true; ar.textContent="Toca otra vez para archivar"; msg.hidden=false; msg.textContent="El pedido y su chat se guardan en tu archivo privado y el cliente podrá hacer un pedido nuevo."; aT=setTimeout(()=>{armed=false; ar.textContent="Archivar pedido"; msg.hidden=true;},6000); return;}
+    clearTimeout(aT); ar.disabled=true; ar.textContent="Archivando…";
+    const id=cur;
+    try{
+      const ms=await getDocs(query(collection(db,"orders",id,"messages"),orderBy("at","asc")));
+      const list=ms.docs.map(d=>d.data());
+      await addDoc(collection(db,"archive"),{uid:id,order:order,messages:list,payOk:!!payOk,archivedAt:Date.now()});
+      for(const d of ms.docs) await deleteDoc(d.ref);
+      try{await deleteDoc(doc(db,"payments",id));}catch(e){}
+      await deleteDoc(doc(db,"orders",id));
+      unsubAll(); cur=null; order=null; view.hidden=true;
+    }catch(x){ar.disabled=false; armed=false; ar.textContent="Archivar pedido"; msg.hidden=false; msg.textContent="No se pudo archivar. Revisa que las reglas de Firestore estén publicadas.";}
+  };
+  r3.appendChild(ar); c.appendChild(r3); c.appendChild(msg); view.appendChild(c);
 }
 function adminList(){
   adm.hidden=false; adm.textContent=""; const box=el("div","adm"); box.appendChild(el("h4",0,"Pedidos recibidos"));

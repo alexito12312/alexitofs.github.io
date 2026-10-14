@@ -39,8 +39,14 @@ service cloud.firestore {
           && request.resource.data.keys().hasOnly(['from','kind','text','url','amount','files','at'])
           && request.resource.data.text is string
           && request.resource.data.text.size() <= 1500;
-        allow update, delete: if false;
+        allow update: if false;
+        allow delete: if isAdmin();
       }
+    }
+
+    // Archivo privado de pedidos cerrados: solo Alexito.
+    match /archive/{id} {
+      allow read, write: if isAdmin();
     }
 
     // Confirmación de pago: solo la escribe Alexito; el cliente la puede leer.
