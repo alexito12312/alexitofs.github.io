@@ -1,0 +1,19 @@
+<!-- BARRA DE PESTAÑAS: pégala en index.html, contacto.html y fanarts.html -->
+<!-- 1) Todo este bloque <style> va dentro de <head> (o antes de </style> del archivo) -->
+<style>
+.sitenav{position:fixed; top:12px; left:50%; transform:translateX(-50%); z-index:9999; display:flex; gap:4px; padding:6px; border-radius:999px;
+  background:rgba(18,12,36,.78); border:1px solid rgba(255,255,255,.22); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  font:600 14px/1 system-ui,-apple-system,"Segoe UI",sans-serif; box-shadow:0 10px 30px -12px rgba(0,0,0,.6)}
+.sitenav a{padding:9px 16px; border-radius:999px; color:#d9d2ee; text-decoration:none; white-space:nowrap}
+.sitenav a:hover{color:#fff; background:rgba(255,255,255,.12)}
+.sitenav a[aria-current=page]{color:#fff; background:linear-gradient(135deg,#8b5cf6,#ec4899)}
+body{padding-top:68px}
+@media(max-width:480px){.sitenav a{padding:9px 11px; font-size:13px}}
+</style>
+<!-- 2) Este <nav> va justo después de <body>. En cada página deja aria-current="page" SOLO en la pestaña de esa página -->
+<nav class="sitenav" aria-label="Secciones del sitio">
+  <a href="index.html" aria-current="page">Inicio</a>
+  <a href="comisiones.html">Comisiones</a>
+  <a href="contacto.html">Contacto</a>
+  <a href="fanarts.html">Fanarts</a>
+</nav>

@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email == 'alexmonxp@gmail.com';
+    }
+
+    // Un pedido por cliente: orders/{su uid}
+    match /orders/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['pkg','pkgName','price','name','contact','idea','links','files','terms','status','paidClaim','at'])
+        && request.resource.data.status == 'nuevo'
+        && request.resource.data.paidClaim == false
+        && request.resource.data.name is string && request.resource.data.name.size() <= 60
+        && request.resource.data.idea is string && request.resource.data.idea.size() <= 2000;
+
+      // El cliente solo puede pasar de "nuevo" a "pago_reportado". Todo lo demás es de Alexito.
+      allow update: if isAdmin()
+        || (isOwner(uid)
+            && resource.data.status == 'nuevo'
+            && request.resource.data.status == 'pago_reportado'
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','paidClaim']));
+
+      allow delete: if isAdmin();
+
+      match /messages/{mid} {
+        allow read: if isOwner(uid) || isAdmin();
+        allow create: if (
+            (isOwner(uid) && request.resource.data.from == 'client')
+            || (isAdmin() && request.resource.data.from == 'owner')
+          )
+          && request.resource.data.keys().hasOnly(['from','kind','text','url','amount','files','at'])
+          && request.resource.data.text is string
+          && request.resource.data.text.size() <= 1500;
+        allow update, delete: if false;
+      }
+    }
+
+    // Confirmación de pago: solo la escribe Alexito; el cliente la puede leer.
+    match /payments/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow write: if isAdmin();
+    }
+  }
+}
