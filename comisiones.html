@@ -207,6 +207,7 @@ h1 .serif{font-size:1.02em; display:block; margin-top:.04em}
 .terms{margin:0 0 12px; padding-left:20px; color:var(--mute); font-size:14px; display:grid; gap:6px}
 .chk{display:flex !important; gap:10px; align-items:flex-start; color:var(--fg) !important; font-size:15px !important}
 .chk input{width:20px; height:20px; margin-top:2px; accent-color:#ff6fae; flex:none}
+.priv{margin:0 0 10px; line-height:1.5}
 .oerr{min-height:1.3em; margin:6px 0 0; color:#ffd1e3; font-size:14px} .note{margin:10px 0 0; color:var(--mute); font-size:13px}
 .btn[disabled]{opacity:.55; cursor:not-allowed; transform:none}
 /* vista del pedido */
@@ -616,6 +617,7 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
           <ul class="terms" id="terms"></ul>
           <label class="chk"><input type="checkbox" id="oterms"><span>Leí y acepto estas condiciones.</span></label>
         </fieldset>
+        <p class="note priv"><b>Privacidad:</b> uso tu nombre, contacto, idea y enlaces solo para gestionar tu pedido. Se guardan en Firebase (Google) y solo los vemos tú y yo. <b>No escribas contraseñas, datos de tarjeta, documentos ni información personal delicada</b>; el pago se hace únicamente en Stripe. Si quieres que borre tu pedido, escríbeme a alexitocontact@gmail.com.</p>
         <p class="oerr" id="oerr" role="alert"></p>
         <div class="actions"><button class="btn" type="submit" id="osend">Enviar pedido y pasar al pago</button></div>
         <p class="note" id="onote"></p>
@@ -1084,7 +1086,7 @@ function render(){
   const sb=el("button","btn","Enviar"); sb.type="button";
   const go=async()=>{const t=ta.value.trim(); if(!t) return; ta.value=""; await send({kind:"text",text:t}); notify("Mensaje de "+(order.name||"cliente"),t);};
   sb.onclick=go; ta.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault(); go();}});
-  cp.appendChild(ta); cp.appendChild(sb); chat.appendChild(cp); view.appendChild(chat);
+  cp.appendChild(ta); cp.appendChild(sb); chat.appendChild(cp); view.appendChild(chat); if(!admin) view.appendChild(el("p","note priv","No compartas contraseñas, datos de tarjeta ni información personal delicada en este chat."));
   drawMsgs();
 }
 function drawMsgs(){
