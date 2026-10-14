@@ -959,6 +959,7 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
 </script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import {initializeAppCheck,ReCaptchaV3Provider} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app-check.js";
 import {getAuth,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import {getFirestore,doc,setDoc,updateDoc,collection,addDoc,query,orderBy,limit,onSnapshot} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
@@ -971,6 +972,8 @@ const firebaseConfig={
   messagingSenderId:"320361520370",
   appId:"1:320361520370:web:27600c40fe866f91ac846b"
 };
+/* App Check (antibots): pega aquí la clave del SITIO de reCAPTCHA v3. Vacío = desactivado. */
+const RECAPTCHA_SITE_KEY="";
 const ADMIN_EMAILS=["alexmonxp@gmail.com"];      /* también debe estar en las reglas de Firestore */
 const PK=[
   {id:"v1",n:"1 video",p:"2 USD"},{id:"v3",n:"3 videos",p:"5 USD"},{id:"v5",n:"5 videos",p:"8 USD"},
@@ -995,7 +998,9 @@ const STEP={nuevo:1,pago_reportado:1,pagado:2,preview:3,entregado:4};
 /* ============================================== */
 
 const $=i=>document.getElementById(i);
-const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getFirestore(app);
+const app=initializeApp(firebaseConfig);
+if(RECAPTCHA_SITE_KEY){ try{ initializeAppCheck(app,{provider:new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY),isTokenAutoRefreshEnabled:true}); }catch(e){} }
+const auth=getAuth(app), db=getFirestore(app);
 let listSub=null,user=null,uid=null,admin=false,sel="v1",cur=null,subs=[],order=null,payOk=false,msgs=[],testing=false,msgBox=null;
 const form=$("oform"),view=$("oview"),adm=$("oadmin");
 
