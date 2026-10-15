@@ -1,0 +1,122 @@
+/* ============================================================
+   TEMA ALEXITO FS  ·  el mismo estilo de comisiones.html para todas las páginas
+   Se carga AL FINAL del <head> de index, contacto, fanarts y beneficios,
+   así que pisa los estilos viejos. Para cambiar colores o tipografías de TODO
+   el sitio, edita solo las variables de :root aquí abajo.
+   ============================================================ */
+:root{
+  --bg:#120c24; --bg2:#171231; --fg:#f6f1fc; --mute:#c4bddb;
+  --accent:#ff6fae; --accent-ink:#1c0a15; --glow:rgba(255,111,174,.42);
+  --line:rgba(255,255,255,.3); --line-soft:rgba(255,255,255,.12); --line-strong:rgba(255,255,255,.85);
+  --f-display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --f-serif:"Instrument Serif",Georgia,serif;
+  --f-body:"DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  /* nombres que ya usaban las páginas viejas, ahora apuntan al nuevo estilo */
+  --font-display:var(--f-display); --font-body:var(--f-body);
+  --ink:var(--fg); --ink-2:rgba(246,241,252,.86); --ink-3:#c4bddb;
+  --pink:var(--accent); --violet:#ffa6cd; --focus:var(--accent);
+  --grad:linear-gradient(135deg,#ff6fae,#ff6fae);
+  --surface:rgba(20,12,40,.88); --surface-solid:#1a1030; --tint:rgba(255,255,255,.07);
+  --r-sm:10px; --r-md:14px; --r-lg:20px;
+  --shadow-card:0 44px 60px -26px rgba(8,2,18,.9), 0 14px 26px rgba(8,2,18,.5);
+}
+html{overflow-x:clip;accent-color:var(--accent);scrollbar-color:#8a3a66 #150f22}
+body{font-family:var(--f-body);background:var(--bg);color:var(--fg);overflow-x:clip;counter-reset:sec}
+::selection{background:var(--accent);color:var(--accent-ink)}
+.mono{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.serif{font-family:var(--f-serif);font-style:italic;font-weight:400;text-transform:none;color:var(--accent);letter-spacing:0}
+
+/* fondo: la imagen/degradado de cada página + el mismo velo oscuro rosado de Comisiones */
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(rgba(16,9,30,.34),rgba(16,9,30,.58))}
+
+/* ---------- BARRA SUPERIOR (igual que Comisiones) ---------- */
+.topnav{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:800;margin-top:12px;padding-inline:clamp(16px,4vw,40px)}
+.topnav .pill{max-width:1080px;margin-inline:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:8px 8px 8px 18px;border:1px solid var(--line);border-radius:999px;
+  background:color-mix(in srgb,var(--bg) 78%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.topnav .brand{font-family:var(--f-display);font-weight:800;font-size:20px;letter-spacing:.06em;text-decoration:none;white-space:nowrap;color:var(--fg)}
+.topnav .brand b{color:var(--accent);font-weight:800}
+.topnav ul{display:flex;gap:4px;list-style:none;margin:0;padding:0}
+.topnav ul a{display:block;padding:6px 12px;border-radius:999px;text-decoration:none;font:500 14px/1.6 var(--f-body);color:var(--mute)}
+.topnav ul a:hover{color:var(--fg);background:var(--line-soft)}
+.topnav ul a[aria-current=page]{color:var(--accent-ink);background:var(--accent);font-weight:700}
+.topnav .btn{min-height:0;padding:10px 20px;font-size:14px}
+@media(max-width:760px){.topnav .brand{display:none}.topnav .pill{padding-left:8px}.topnav ul{flex:1;justify-content:center;overflow-x:auto;scrollbar-width:none}.topnav ul a{padding:6px 9px;font-size:13px}}
+@media(max-width:520px){.topnav .nav-cta{display:none}.topnav .pill{padding:6px}.topnav ul a{padding:6px 8px;font-size:12.5px}}
+
+/* ---------- BOTONES Y CHIPS ---------- */
+.btn{border:1px solid var(--line);background:transparent;color:var(--fg);font:700 14px/1 var(--f-body);box-shadow:none;min-height:46px;transition:transform .2s,box-shadow .2s,border-color .2s}
+.btn:hover{border-color:var(--fg)}
+.btn-primary,.btn.primary{border-color:var(--accent);background:var(--accent);color:var(--accent-ink);box-shadow:0 8px 26px -8px var(--glow)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 30px -8px var(--glow);filter:none;border-color:var(--accent)}
+.chip{border:1px solid var(--line);background:rgba(18,12,36,.62);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font:500 15px/1 var(--f-body)}
+.chip:hover{border-color:var(--accent)!important;background:rgba(40,20,60,.8)!important}
+.back{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.icon-btn{border:1px solid rgba(255,255,255,.75);background:rgba(14,8,28,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.icon-btn:hover:not(:disabled){background:var(--accent)!important;color:var(--accent-ink);border-color:var(--accent)!important}
+
+/* ---------- TITULARES ---------- */
+h1,h2,h3{font-family:var(--f-display);font-weight:900;text-transform:uppercase;letter-spacing:.02em;line-height:.95;text-wrap:balance}
+.hero{padding-block:clamp(36px,7vw,84px) 8px}
+.hero .eyebrow{display:inline-flex;gap:10px;align-items:center;color:var(--accent);margin-bottom:6px}
+.hero .eyebrow::before{content:"";width:28px;height:1px;background:currentColor}
+.hero h1{font-size:clamp(56px,12vw,128px);line-height:.86;letter-spacing:.005em;margin:10px 0 18px;text-shadow:0 4px 30px rgba(8,2,18,.6)}
+.hero h1 .serif{display:block;font-size:1.02em;margin-top:.04em}
+.hero h1.name{color:rgba(255,255,255,.16);-webkit-text-stroke:2px rgba(255,255,255,.6);text-shadow:0 20px 50px rgba(10,0,24,.35);font-size:clamp(64px,15vw,160px)}
+.hero h1.name b{font-weight:900;color:rgba(255,111,174,.4);-webkit-text-stroke:2px rgba(255,150,200,.95)}
+.tagline,.hero .sub{font-family:var(--f-body);color:var(--mute);font-size:clamp(17px,2vw,20px);max-width:46ch}
+.avatar{border:3px solid #fff;box-shadow:0 18px 40px -12px var(--glow),0 0 0 6px var(--line-soft)}
+
+.section-title{counter-increment:sec;font-size:clamp(40px,7.4vw,84px);line-height:.88;margin:clamp(56px,9vw,100px) 0 14px;text-shadow:0 4px 30px rgba(8,2,18,.6)}
+.section-title::before{content:"// 0" counter(sec);display:block;font:500 12px/1 var(--f-mono);letter-spacing:.14em;color:var(--accent);margin-bottom:12px}
+.lede{color:var(--mute);font-size:clamp(16px,1.8vw,19px);max-width:50ch}
+.js .reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+.js .reveal.in{opacity:1;transform:none}
+
+/* ---------- TARJETAS Y PANELES (contorno blanco como en Comisiones) ---------- */
+.panel,.vpanel,.precio,.red,.ch,.rows,.marquee,.sheet,.pnote{background:var(--surface);border:2px solid #fff;border-radius:var(--r-lg);box-shadow:var(--shadow-card)}
+.card{border:3px solid #fff;border-radius:var(--r-lg);box-shadow:var(--shadow-card)}
+.card h3{font-size:clamp(22px,2.3vw,30px);overflow-wrap:anywhere}
+.card .go{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.subs{border-color:var(--line);font-family:var(--f-mono);font-size:11px;letter-spacing:.08em}
+.facts li{border:1px solid var(--line);background:rgba(18,12,36,.62);font-family:var(--f-mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;color:var(--fg)}
+.vhead h3,.row h3{font-size:1.5rem}
+.vt{font-weight:700}
+.vgrid .thumb{border:2px solid rgba(255,255,255,.7);border-radius:var(--r-md)}
+.precio .monto{font-family:var(--f-display);font-weight:900;font-size:3.6rem;letter-spacing:.01em}
+.precio.dest{border-color:var(--accent);background:linear-gradient(160deg,rgba(255,111,174,.28),rgba(255,111,174,.12)),var(--surface)}
+.precio .ahorro{background:var(--accent);color:var(--accent-ink);font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.ch .n,.red .cifras{font-family:var(--f-display);font-weight:800;color:var(--accent)}
+.red b{font-size:1.15rem}
+.lista li::before{background:var(--accent)}
+.mail code{border-color:var(--line);font-family:var(--f-mono);font-size:.95rem}
+.logo{border:2px solid #fff}
+.logo.afi{border:0}
+footer{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+
+/* ---------- PESTAÑAS LATERALES, MODALES, CALENDARIO ---------- */
+.side-tab{border:2px solid #fff;background:rgba(18,12,36,.94);font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.side-tab .st-ico{background:var(--accent);color:var(--accent-ink);border-radius:12px}
+.side-tab .st-txt small{font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:12px}
+.modal{border:3px solid #fff;border-radius:22px;background:var(--surface-solid)}
+.ax-modal h2,.ax-info .name{font-family:var(--f-display)}
+.ax-day{border-radius:12px}
+.ax-day.has{border-color:var(--accent);background:linear-gradient(160deg,rgba(255,111,174,.32),rgba(255,111,174,.16))}
+.ax-dow,.ax-info .lbl{font-family:var(--f-mono);color:var(--accent)}
+.ax-info .time{color:var(--accent)}
+
+/* ---------- FANARTS / BENEFICIOS ---------- */
+.avt h2,.emo h2{font-size:clamp(40px,7vw,76px);line-height:.9}
+.avt .sub,.emo .sub{color:var(--mute)}
+.opt{border-color:var(--line);font-weight:500}
+.opt[aria-pressed=true]{border-color:var(--accent)!important;background:rgba(255,111,174,.2)!important;color:#fff}
+.grp h3{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;color:var(--accent)}
+.tier{border-radius:var(--r-lg)}
+.tier .lv{font-family:var(--f-mono);color:var(--accent)}
+.tier .price{font-family:var(--f-display);font-weight:900}
+.chips .chip[aria-selected=true]{background:var(--accent)!important;color:var(--accent-ink)!important;border-color:var(--accent)!important}
+.dot[aria-current=true]::before,.dots button.on::before{background:var(--accent)!important}
+
+@media (prefers-reduced-motion:reduce){.js .reveal{opacity:1;transform:none;transition:none}}

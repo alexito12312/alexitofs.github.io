@@ -64,7 +64,7 @@ a{color:inherit}
 .btn.ghost:hover{border-color:var(--fg)}
 .nav ul a[aria-current=page]{color:var(--accent-ink); background:var(--accent); font-weight:700}
 @media(max-width:760px){.brand{display:none} .nav .pill{padding-left:8px} .nav ul{flex:1; justify-content:center; overflow-x:auto; scrollbar-width:none} .nav ul a{padding:6px 9px; font-size:13px}}
-@media(max-width:520px){.nav .btn{padding:9px 12px; font-size:13px} .nav ul li:nth-child(n+3){display:none}}
+@media(max-width:520px){.nav .btn{display:none} .nav .pill{padding:6px} .nav ul a{padding:6px 8px; font-size:12.5px}}
 
 /* hero */
 .hero{padding-block:clamp(36px,7vw,84px) 24px; display:grid; grid-template-columns:1.25fr .75fr; gap:clamp(24px,5vw,64px); align-items:center}
@@ -370,7 +370,7 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
 .dot{all:unset; width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,.4); cursor:pointer; transition:background .2s, transform .2s}
 .dot[aria-current="true"]{background:var(--accent); transform:scale(1.3)}
 .dot:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
-@media(max-width:819px){
+@media(max-width:819px),(orientation:portrait){
   .track{height:290svh}
   .rail{left:0}
   .hint{left:50%; top:22%; transform:translateX(-50%)}
@@ -407,7 +407,7 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
 .pnote{position:relative; z-index:3; margin-top:12px; padding:16px 22px; border:1px solid var(--line); border-radius:18px; background:rgba(18,12,36,.7); backdrop-filter:blur(10px); max-width:760px}
 .pnote p{margin:0; color:var(--mute)}
 .pnote b{color:var(--fg)}
-@media(max-width:819px){
+@media(max-width:819px),(orientation:portrait){
   #pTrack{height:220svh; margin-top:-6svh; margin-bottom:-2svh}
   .pgrid{left:10px; right:10px; top:36%; bottom:3svh; gap:10px; transform:rotateY(-4deg)}
   .pcard{padding:11px; gap:5px; border-width:2px; border-radius:16px; justify-content:flex-start}
@@ -429,6 +429,29 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
   .sheet,.sheet .scroll,.card,.card::before{transition:none}
   .track,#pTrack{height:auto} .stage{position:relative; height:100svh} .char img,.hint svg{animation:none} .slot{transition:none}
 }
+
+/* pestana lateral derecha: ir directo a cada servicio */
+.jump{position:fixed; right:0; top:50%; transform:translateY(-50%); z-index:60; display:flex; flex-direction:row-reverse; align-items:center; pointer-events:none}
+.jump>*{pointer-events:auto}
+.jump-tab{all:unset; pointer-events:auto; box-sizing:border-box; cursor:pointer; display:flex; align-items:center; gap:10px; padding:8px 12px 8px 8px; border:2px solid #fff; border-right:0; border-radius:18px 0 0 18px;
+  background:rgba(18,12,36,.94); color:var(--fg); box-shadow:-10px 14px 34px -14px rgba(8,2,18,.9); font-family:var(--f-mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase}
+.jump-tab:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.jump-tab .jico{width:38px; height:38px; flex:none; border-radius:12px; background:var(--accent); color:var(--accent-ink); display:grid; place-items:center}
+.jump-tab .jico svg{width:22px; height:22px; transition:transform .25s}
+.jump.open .jump-tab .jico svg{transform:rotate(180deg)}
+.jump-panel{list-style:none; margin:0 10px 0 0; padding:10px; width:min(300px,calc(100vw - 110px)); border:2px solid #fff; border-radius:20px; background:rgba(20,12,40,.96);
+  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); box-shadow:var(--shadow, 0 30px 60px -24px rgba(8,2,18,.9)); opacity:0; visibility:hidden; transform:translateX(18px); transition:opacity .22s, transform .22s, visibility .22s}
+.jump.open .jump-panel{opacity:1; visibility:visible; transform:none}
+@media(hover:hover) and (pointer:fine){.jump:hover .jump-panel{opacity:1; visibility:visible; transform:none} .jump:hover .jump-tab .jico svg{transform:rotate(180deg)}}
+.jump-panel a{display:grid; grid-template-columns:auto 1fr; gap:2px 12px; align-items:center; padding:10px 12px; border-radius:14px; text-decoration:none; color:var(--fg); border:1px solid transparent}
+.jump-panel a:hover,.jump-panel a:focus-visible{background:var(--line-soft); border-color:var(--line)}
+.jump-panel a[aria-current="true"]{background:rgba(255,111,174,.16); border-color:var(--accent)}
+.jump-panel .jn{grid-row:1/3; font-family:var(--f-mono); font-size:11px; letter-spacing:.14em; color:var(--accent)}
+.jump-panel b{font:900 22px/1 var(--f-display); text-transform:uppercase; letter-spacing:.03em}
+.jump-panel small{font-size:12.5px; color:var(--mute); line-height:1.3}
+.pulse{animation:pulse 1.4s ease-out 1}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,111,174,.9)} 100%{box-shadow:0 0 0 26px rgba(255,111,174,0)}}
+@media(max-width:640px){.jump-tab .jlbl{display:none} .jump-tab{padding:6px 8px 6px 6px}}
 </style>
 </head>
 <body>
@@ -628,6 +651,20 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
 
   <footer class="mono">Alexito FS · Comisiones</footer>
 </main>
+
+<aside class="jump" id="jump" aria-label="Ir directo a un servicio">
+  <button class="jump-tab" type="button" id="jumpBtn" aria-expanded="false" aria-controls="jumpPanel">
+    <span class="jico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span>
+    <span class="jlbl">Ir directo</span>
+  </button>
+  <ul class="jump-panel" id="jumpPanel" aria-label="Servicios">
+    <li><a href="#video" data-go="video"><span class="jn">01</span><b>Paquete de edición</b><small>Shorts y clips desde 2 USD</small></a></li>
+    <li><a href="#web" data-go="web"><span class="jn">02</span><b>Creación de páginas</b><small>Tu página propia y lista para compartir</small></a></li>
+    <li><a href="#software" data-go="software"><span class="jn">03</span><b>Desarrollador de software</b><small>Programas hechos para tu problema</small></a></li>
+    <li><a href="#apps" data-go="apps"><span class="jn">04</span><b>Desarrollador de apps</b><small>Aplicaciones para el celular</small></a></li>
+  </ul>
+</aside>
+
 
 <dialog class="modal" id="modal" aria-labelledby="mTitle">
   <div class="sheet" id="sheet" data-k="video">
@@ -834,14 +871,33 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
     active=i; layout(); update();
   }
   function measure(){
-    var W=stage.clientWidth, H=stage.clientHeight, nar=W<820;
+    var W=stage.clientWidth, H=stage.clientHeight, nar=W<820||H>W*1.05;
     M.W=W; M.H=H; M.nar=nar;
-    charEl.style.setProperty('--ch',Math.min(H*(nar?.62:.86),nar?560:740)+'px');
-    var h=Math.max(260,Math.min(H-84-(nar?150:130),nar?400:540)), w=h*9/16;
+    var ch=Math.min(H*(nar?.62:.86),nar?Math.max(560,W*.95):740);
+    charEl.style.setProperty('--ch',ch+'px');
+    var hmax=nar?Math.min(560,Math.max(400,W*.62)):540;
+    var h=Math.max(260,Math.min(H-84-(nar?150:130),hmax)), w=h*9/16;
     if(nar&&w>W*.5){w=W*.5;h=w*16/9;}
     rail.style.setProperty('--w',w+'px'); rail.style.setProperty('--h',h+'px');
-    var rl=nar?0:W*.36; M.railCx=rl+(W-rl)/2;
     M.s0=nar?1:1.06; M.s1=nar?.62:.94; M.cxf=nar?.22:.2;
+    nameEl.style.fontSize='';
+    if(nar){
+      rail.style.left='0px'; M.railCx=W/2;
+      /* pantalla vertical: la tarjeta se centra entre la barra y el personaje (sin hueco enorme) */
+      var charTop=H-ch*M.s1-10, off=Math.max(0,(charTop-84-(h+24))/2);
+      rail.style.top=(84+off)+'px';
+    }
+    else{
+      /* PC: el personaje queda pegado a la primera tarjeta (hueco chico) y el grupo se centra */
+      var charW=ch*.7477*M.s1, gap=Math.max(8,Math.min(26,W*.013)), group=charW+gap+w*2.4;
+      var L=Math.max(W*.015,(W-group)/2), cardCx=L+charW+gap+w*.5;
+      M.cxf=(L+charW/2)/W;
+      rail.style.left=(2*cardCx-W)+'px'; M.railCx=cardCx; rail.style.top='';
+      /* el titulo AlexitoFS se ajusta para quedar arriba del personaje y sin tapar las tarjetas */
+      var nw=nameEl.offsetWidth, cl=cardCx-w*.5, avail=cl-gap-W*.012-8;
+      if(nw>avail&&avail>120){ nameEl.style.fontSize=(parseFloat(getComputedStyle(nameEl).fontSize)*avail/nw)+'px'; nw=avail; }
+      M.nameCx=Math.min(Math.max(L+charW/2,W*.012+nw/2),cl-gap-nw/2);
+    }
     update();
   }
   function update(){
@@ -854,7 +910,7 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
     var m=sm(.06,.5,p), tx=-(0.5-M.cxf)*M.W*m, sc=M.s0+(M.s1-M.s0)*m;
     charEl.style.transform='translate3d('+tx+'px,0,0) scale('+sc+') rotate('+(-3*(1-m))+'deg)';
     glow.style.transform='translate3d('+(tx*.55)+'px,0,0)';
-    nameEl.style.transform='translate3d(calc(-50% + '+((innerWidth<700?0:tx*.55))+'px),'+(m*10)+'px,0)';
+    nameEl.style.transform='translate3d(calc(-50% + '+(M.nar?(innerWidth<700?0:tx*.55):(M.nameCx-M.W/2)*m)+'px),'+(m*10)+'px,0)';
     ring.style.transform='translate3d('+(tx*.3)+'px,'+(m*-18)+'px,0)';
     hint.style.opacity=1-sm(.02,.14,p);
     ctrl.style.opacity=sm(.5,.8,p);
@@ -898,6 +954,7 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
   });
   cf.addEventListener('pointercancel',function(){sx=null;});
   layout(); measure();
+  if(document.fonts&&document.fonts.ready){document.fonts.ready.then(measure);}
 
   /* condiciones y politicas: sello y tarjetas con el scroll */
   var ic=function(p){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';};
@@ -915,7 +972,7 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
   }).join('');
   var pcs=[].slice.call(pgrid.children), PM={};
   function pMeasure(){
-    var W=pS.clientWidth, H=pS.clientHeight, nar=W<820;
+    var W=pS.clientWidth, H=pS.clientHeight, nar=W<820||H>W*1.05;
     var size=Math.min(H*(nar?.4:.58), nar?300:500);
     seal.style.setProperty('--ss',size+'px');
     PM={W:W,H:H,nar:nar,size:size,
@@ -949,6 +1006,41 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
   addEventListener('scroll',function(){ if(!pTick){pTick=true;requestAnimationFrame(function(){pTick=false;pUpdate();});} },{passive:true});
   addEventListener('resize',pMeasure);
   pMeasure();
+
+
+  /* pestana lateral: ir directo a cada servicio */
+  (function(){
+    var box=document.getElementById('jump'), btn=document.getElementById('jumpBtn');
+    if(!box||!btn) return;
+    var links=[].slice.call(box.querySelectorAll('a[data-go]'));
+    function setOpen(o){ box.classList.toggle('open',o); btn.setAttribute('aria-expanded',o?'true':'false'); }
+    btn.addEventListener('click',function(e){ e.stopPropagation(); setOpen(!box.classList.contains('open')); });
+    document.addEventListener('click',function(e){ if(!box.contains(e.target)) setOpen(false); });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape') setOpen(false); });
+    links.forEach(function(a){
+      a.addEventListener('click',function(e){
+        e.preventDefault(); setOpen(false);
+        var k=a.getAttribute('data-go'), el=document.getElementById(k);
+        if(!el) return;
+        el.scrollIntoView({behavior:'smooth',block:k==='video'?'start':'center'});
+        if(k==='video'){
+          var ch=el.querySelector('.chips'); if(ch){ ch.classList.remove('pulse'); void ch.offsetWidth; ch.classList.add('pulse'); }
+        }else{
+          /* las tarjetas de web / software / apps abren su detalle al llegar */
+          setTimeout(function(){ el.click(); },650);
+        }
+      });
+    });
+    if('IntersectionObserver' in window){
+      var vis={};
+      var io=new IntersectionObserver(function(es){
+        es.forEach(function(e){ vis[e.target.id]=e.isIntersecting?e.intersectionRatio:0; });
+        var best=null,bv=0; for(var k in vis){ if(vis[k]>bv){bv=vis[k];best=k;} }
+        links.forEach(function(a){ if(a.getAttribute('data-go')===best) a.setAttribute('aria-current','true'); else a.removeAttribute('aria-current'); });
+      },{threshold:[0,.25,.5,.75,1]});
+      ['video','web','software','apps'].forEach(function(id){ var el=document.getElementById(id); if(el) io.observe(el); });
+    }
+  })();
 
   var items=[].slice.call(document.querySelectorAll('.reveal'));
   if('IntersectionObserver' in window){
