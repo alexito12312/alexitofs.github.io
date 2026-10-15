@@ -479,7 +479,7 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
 @keyframes wshine{0%,35%{transform:translateX(-130%)} 70%,100%{transform:translateX(130%)}}
 .whint{position:absolute; left:50%; bottom:clamp(18px,6svh,56px); transform:translateX(-50%); z-index:6; display:flex; align-items:center; gap:12px; color:#fff; text-shadow:0 2px 14px rgba(8,2,18,.8); pointer-events:none}
 .whint svg{width:22px; height:22px; animation:nudge 1.4s ease-in-out infinite}
-.wctrl{position:absolute; left:0; right:0; bottom:clamp(14px,4svh,36px); z-index:7; display:flex; flex-direction:column; align-items:center; gap:10px; padding-inline:12px; opacity:0; pointer-events:none}
+.wctrl{position:absolute; left:0; right:0; bottom:clamp(6px,1.4svh,14px); z-index:7; display:flex; flex-direction:column; align-items:center; gap:6px; padding-inline:12px; opacity:0; pointer-events:none}
 .wcp{display:flex; align-items:center; gap:14px; padding:8px 12px; max-width:min(780px,100%); border:1px solid var(--line); border-radius:999px; background:rgba(18,12,36,.82); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px)}
 .wcp .meta{min-width:0; text-align:left}
 .wcp .meta b{display:block; font:900 clamp(20px,2.2vw,26px)/1 var(--f-display); text-transform:uppercase; letter-spacing:.03em}
@@ -1161,7 +1161,7 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
     var M={}, act=0, forced=0, inView=false, raf=0, cur=0, tgt=0, tx=0, ty=0, ttx=0, tty=0;
     function lerp(a,b,t){return a+(b-a)*t;}
     function measure(){
-      var W=st.clientWidth, H=st.clientHeight, nar=W<820||H>W*1.05, top=84, bot=nar?138:118, avail=H-top-bot;
+      var W=st.clientWidth, H=st.clientHeight, nar=W<820||H>W*1.05, top=84, bot=nar?132:126, avail=H-top-bot;
       M.W=W; M.H=H; M.nar=nar; M.subs=[];
       var m0,m1,sw,sh,step;
       if(!nar){
