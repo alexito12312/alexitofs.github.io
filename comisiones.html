@@ -500,6 +500,30 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
 .wlight .wlcap p{margin:4px 0 10px; color:var(--mute); font-size:15px}
 .wlight .wclose{position:absolute; top:max(14px,env(safe-area-inset-top)); right:14px; z-index:3}
 @media (prefers-reduced-motion: reduce){.wwin.on .wshot::after,.whint svg{animation:none} .wlight[open] .wlbox{animation:none}}
+
+/* portafolio de software: panel de estadisticas */
+.swfolio{margin-top:clamp(48px,9vw,110px)}
+.swtrack{position:relative; width:100vw; margin-left:calc(50% - 50vw); height:420svh; margin-top:calc(-1 * clamp(0px,3vw,40px))}
+.swstage{position:sticky; top:0; height:100svh; min-height:560px; overflow:hidden; perspective:1800px}
+.swscene{position:absolute; left:0; top:0; will-change:transform,opacity}
+.swmenu{position:absolute; left:0; top:0; border:3px solid #fff; border-radius:18px; overflow:hidden; background:#0d1020; box-shadow:0 46px 70px -26px rgba(8,2,18,.85), 0 16px 32px rgba(8,2,18,.5); will-change:transform,opacity}
+.swmenu img{display:block; width:100%; height:auto; user-select:none; -webkit-user-drag:none}
+.swhl{position:absolute; left:5%; right:5%; border-radius:10px; box-shadow:0 0 0 2px var(--accent), 0 0 22px var(--glow), 0 0 0 999px rgba(8,6,20,.66); pointer-events:none; transition:top .55s cubic-bezier(.2,.8,.2,1)}
+.swhit{all:unset; position:absolute; left:0; right:0; cursor:pointer; z-index:2}
+.swhit:focus-visible{outline:2px solid var(--accent); outline-offset:-3px}
+.swwin{position:absolute; left:0; top:0; border:3px solid #fff; border-radius:18px; overflow:hidden; background:#0a0c16; cursor:pointer; box-shadow:0 46px 70px -26px rgba(8,2,18,.85), 0 16px 32px rgba(8,2,18,.5), 0 0 70px -10px var(--glow); will-change:transform,opacity}
+.swwin:focus-visible{outline:3px solid var(--accent); outline-offset:4px}
+.swbody{position:relative; aspect-ratio:1.8; background:#0a0c16; overflow:hidden}
+.swbody img{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; opacity:0; transform:scale(1.045) translateY(16px); filter:blur(6px); transition:opacity .55s, transform .7s cubic-bezier(.2,.8,.2,1), filter .55s; user-select:none; -webkit-user-drag:none}
+.swbody img.on{opacity:1; transform:none; filter:none}
+.swbody::after{content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.1) 50%,transparent 62%); transform:translateX(-130%); animation:wshine 4.2s ease-in-out infinite}
+.swhint{position:absolute; left:50%; bottom:clamp(18px,6svh,56px); transform:translateX(-50%); z-index:6; display:flex; align-items:center; gap:12px; color:#fff; text-shadow:0 2px 14px rgba(8,2,18,.8); pointer-events:none}
+.swhint svg{width:22px; height:22px; animation:nudge 1.4s ease-in-out infinite}
+.swctrl{position:absolute; left:0; right:0; bottom:clamp(6px,1.4svh,14px); z-index:200; display:flex; flex-direction:column; align-items:center; gap:6px; padding-inline:12px; opacity:0; pointer-events:none}
+@media(max-width:819px),(orientation:portrait){.swtrack{height:380svh}}
+.swlight .wlbox .swfull{display:block; width:100%; height:auto; max-height:calc(100svh - 230px); object-fit:contain; background:#0a0c16}
+.swlight .wlbox{width:min(1320px,94vw)}
+@media (prefers-reduced-motion: reduce){.swbody::after,.swhint svg{animation:none} .swbody img{transition:none}}
 </style>
 </head>
 <body>
@@ -659,6 +683,35 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
       </span>
     </button>
 
+  <section class="wfolio swfolio" id="swfolio" aria-label="Portafolio de software">
+    <header class="folio-head reveal">
+      <div class="eyebrow mono">// Portafolio · software</div>
+      <h2>Mi panel de <span class="serif">estadísticas</span></h2>
+      <p>Un programa que hice para ver todos mis canales y redes en un solo lugar. Sigue bajando para recorrerlo y toca una pantalla para verla en grande.</p>
+    </header>
+    <section class="wtrack swtrack" id="swTrack" aria-label="Pantallas del panel de estadísticas">
+      <div class="wstage swstage" id="swStage">
+        <div class="swscene" id="swScene">
+          <div class="swmenu" id="swMenu"><img src="comisiones-media/sw-menu.png" alt="Menú del panel: Dashboard General, Canales de YouTube, Redes Sociales, Analytics, Calendario, Biblioteca, Negocio y Configuración" draggable="false"><div class="swhl" id="swHl"></div></div>
+          <div class="swwin" id="swWin" role="button" tabindex="0" aria-label="Ver pantalla ampliada">
+            <div class="wbar"><i></i><i></i><i></i><span class="wurl mono">Panel de estadísticas · Alexito FS</span><span class="wname" id="swName"></span></div>
+            <div class="swbody" id="swBody"></div>
+          </div>
+        </div>
+        <div class="whint swhint mono" id="swHint"><span>Sigue bajando</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v15M6 13l6 6 6-6"/></svg></div>
+        <div class="wctrl swctrl" id="swCtrl">
+          <div class="wcp">
+            <button class="arrow" type="button" id="swPrev" aria-label="Pantalla anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+            <div class="meta" aria-live="polite"><em id="swNum"></em><b id="swTitle"></b><span id="swDesc"></span></div>
+            <button class="arrow" type="button" id="swNext" aria-label="Pantalla siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+          </div>
+          <div class="dots" id="swDots"></div>
+        </div>
+      </div>
+    </section>
+  </section>
+
+
     <button class="card r reveal fromR" type="button" id="apps" data-open="apps" data-k="apps" aria-haspopup="dialog">
       <span class="cin">
         <span class="num">// 04</span>
@@ -745,6 +798,14 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
     <button class="arrow wclose" type="button" id="wClose" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
     <div class="wlbox"><div class="wbar"><i></i><i></i><i></i><span class="wurl mono" id="wlUrl"></span></div><div class="wshot"><img id="wlImg" alt="" draggable="false"></div></div>
     <div class="wlcap"><em id="wlNum"></em><b id="wlTitle"></b><p id="wlDesc"></p><a class="btn" id="wlGo" href="#">Visitar esta página</a></div>
+  </div>
+</dialog>
+
+<dialog class="wlight swlight" id="swlight" aria-label="Pantalla ampliada del panel">
+  <div class="wlin">
+    <button class="arrow wclose" type="button" id="swClose" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
+    <div class="wlbox"><div class="wbar"><i></i><i></i><i></i><span class="wurl mono">Panel de estadísticas · Alexito FS</span></div><img class="swfull" id="swlImg" alt="" draggable="false"></div>
+    <div class="wlcap"><em id="swlNum"></em><b id="swlTitle"></b><p id="swlDesc"></p></div>
   </div>
 </dialog>
 
@@ -836,7 +897,7 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
     $('mInc').innerHTML='<ul>'+d.inc.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul>';
     $('mIdeal').innerHTML=d.ideal.map(function(t){return '<p>'+t+'</p>';}).join('');
     $('mPrice').innerHTML=d.price;
-    $('mSub').textContent=(k==='web')?'Ver portafolio de páginas web':'Subpágina · próximamente';
+    $('mSub').textContent=(k==='web')?'Ver portafolio de páginas web':(k==='software')?'Ver portafolio de software':'Subpágina · próximamente';
   }
   function cardRect(){
     if(!from) return null;
@@ -895,9 +956,10 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
     setTimeout(function(){ $('contacto').scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'}); },40);
   });
   $('mSub').addEventListener('click',function(){
-    if(cur==='web'){
+    if(cur==='web'||cur==='software'){
       closing=true; var f=from; from=null; finish(); from=f;
-      setTimeout(function(){ var t=document.getElementById('webfolio'); if(t) t.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'}); },40);
+      var tid=cur==='web'?'webfolio':'swfolio';
+      setTimeout(function(){ var t=document.getElementById(tid); if(t) t.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'}); },40);
       return;
     }
     this.textContent='Esta subpágina todavía no está lista.';
@@ -1293,6 +1355,131 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
       el.addEventListener('click',function(){ openShot(k); });
       el.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openShot(k); } });
     });
+    setAct(0); measure();
+  })();
+
+
+  /* portafolio de software: panel de estadisticas, pantalla por pantalla */
+  (function(){
+    var SC=[
+      {t:'Dashboard General',n:'Dashboard General',m:0,img:'comisiones-media/sw-kpis.jpg',d:'Todos mis canales de un vistazo: seguidores, vistas, nuevos suscriptores, horas e ingresos.'},
+      {t:'Ranking y alertas',n:'Dashboard General',m:0,img:'comisiones-media/sw-ranking.jpg',d:'Mis videos con más vistas y alertas cuando un Short se hace viral.'},
+      {t:'Canales de YouTube',n:'Canales de YouTube',m:1,img:'comisiones-media/sw-canales.jpg',d:'Mis 6 canales con sus suscriptores y el promedio de vistas por video.'},
+      {t:'Analytics comparativo',n:'Analytics Comparativo',m:3,img:'comisiones-media/sw-analytics.jpg',d:'Comparo varias cuentas en la misma gráfica para ver qué formato funciona mejor.'},
+      {t:'Calendario de contenido',n:'Calendario de Contenido',m:4,img:'comisiones-media/sw-calendario.jpg',d:'Tablero para planear cada video: idea, guion, grabado, editando, listo y publicado.'},
+      {t:'Biblioteca de contenido',n:'Biblioteca de Contenido',m:5,img:'comisiones-media/sw-biblioteca.jpg',d:'Catálogo de todo lo que publiqué, con notas de qué funcionó.'}
+    ];
+    var ROW=[21.5,66.5,110.5,156,198,242,287,330.5], MH=382, MWpx=233, ROWH=42;
+    var st=$('swStage'), tr=$('swTrack'), scene=$('swScene'), menu=$('swMenu'), win=$('swWin'), body=$('swBody'), hl=$('swHl'), hint=$('swHint'), ctrl=$('swCtrl');
+    if(!st||!tr||!win) return;
+    var BAR=26, AR=1.8, rmS=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    body.innerHTML=SC.map(function(c,i){return '<img src="'+c.img+'" alt="Pantalla: '+c.t+'" draggable="false" decoding="async"'+(i?' loading="lazy"':'')+'>';}).join('');
+    var imgs=[].slice.call(body.children);
+    $('swDots').innerHTML=SC.map(function(c,i){return '<button class="dot" type="button" data-i="'+i+'" aria-label="Ir a '+c.t+'"></button>';}).join('');
+    var dots=[].slice.call($('swDots').children);
+    /* zonas clicables del menu */
+    [[0,0],[1,2],[3,3],[4,4],[5,5]].forEach(function(pr){
+      var b=document.createElement('button'); b.type='button'; b.className='swhit'; b.setAttribute('aria-label','Ir a '+SC[pr[1]].t);
+      b.style.top=((ROW[pr[0]]-ROWH/2)/MH*100)+'%'; b.style.height=(ROWH/MH*100)+'%';
+      b.addEventListener('click',function(){goTo(pr[1]);}); menu.appendChild(b);
+    });
+    var M={}, act=-1, forced=0, inView=false, raf=0, cur=0, tgt=0, tx=0, ty=0, ttx=0, tty=0;
+    function lerp(a,b,t){return a+(b-a)*t;}
+    function measure(){
+      var W=st.clientWidth, H=st.clientHeight, nar=W<820||H>W*1.05, top=84;
+      var bot=Math.max(nar?132:126,Math.round(ctrl.offsetHeight+Math.max(6,Math.min(14,H*.014))+18)), avail=H-top-bot;
+      var mw,mh,ww,wh,gap;
+      if(!nar){
+        gap=Math.max(18,W*.016);
+        mh=Math.min(avail,520,MH*1.35); mw=mh*MWpx/MH;
+        wh=Math.min(avail,(W*.94-mw-gap)/AR+BAR,820/AR+BAR+120); ww=(wh-BAR)*AR;
+        var maxw=W*.94-mw-gap; if(ww>maxw){ww=maxw; wh=ww/AR+BAR;}
+        mh=Math.min(mh,wh); mw=mh*MWpx/MH;
+        M.tw=mw+gap+ww; M.th=Math.max(mh,wh);
+        M.mx=0; M.my=(M.th-mh)/2; M.wx=mw+gap; M.wy=(M.th-wh)/2;
+        menu.style.display='';
+      }else{
+        mw=0; mh=0; gap=0;
+        ww=Math.min(W*.94,(avail-BAR)*AR*1.0,900); wh=ww/AR+BAR;
+        M.tw=ww; M.th=wh; M.mx=0; M.my=0; M.wx=0; M.wy=0;
+        menu.style.display='none';
+      }
+      M.W=W; M.H=H; M.nar=nar; M.top=top; M.avail=avail; M.mw=mw; M.mh=mh; M.ww=ww; M.wh=wh;
+      scene.style.width=M.tw+'px'; scene.style.height=M.th+'px';
+      menu.style.width=mw+'px'; menu.style.height=mh+'px'; menu.style.transform='translate('+M.mx+'px,'+M.my+'px)';
+      win.style.width=ww+'px'; win.style.transform='translate('+M.wx+'px,'+M.wy+'px)';
+      M.cx=W/2; M.cy=top+avail/2;
+      render(cur);
+    }
+    function readP(){
+      if(rmS) return 1;
+      var r=tr.getBoundingClientRect(), total=tr.offsetHeight-st.offsetHeight;
+      return total>0?Math.min(1,Math.max(0,-r.top/total)):1;
+    }
+    function setAct(a){
+      if(a===act) return;
+      var first=act<0; act=a;
+      imgs.forEach(function(im,i){im.classList.toggle('on',i===a);});
+      dots.forEach(function(d,i){ if(i===a) d.setAttribute('aria-current','true'); else d.removeAttribute('aria-current'); });
+      $('swNum').textContent='// 0'+(a+1)+' · pantalla'; $('swTitle').textContent=SC[a].t; $('swDesc').textContent=SC[a].d; $('swName').textContent=SC[a].n;
+      $('swPrev').disabled=a===0; $('swNext').disabled=a===SC.length-1;
+      hl.style.top=((ROW[SC[a].m]-ROWH/2)/MH*100)+'%'; hl.style.height=(ROWH/MH*100)+'%';
+      if(!first&&!rmS){ var t=$('swTitle'); t.classList.remove('glitch'); void t.offsetWidth; t.classList.add('glitch'); }
+    }
+    function render(p){
+      var a=Math.min(SC.length-1,Math.max(0,Math.floor((p-.2)/.8*SC.length)));
+      if(rmS) a=forced;
+      setAct(a);
+      var e=sm(0,.18,p), em=sm(.02,.2,p);
+      var sc=lerp(.72,1,e), z=lerp(-420,0,e), rx=-ty*3, ry=tx*4+lerp(-16,0,e);
+      scene.style.transform='translate3d('+(M.cx-M.tw/2)+'px,'+(M.cy-M.th/2)+'px,'+z+'px) rotateX('+rx+'deg) rotateY('+ry+'deg) scale('+sc+')';
+      scene.style.opacity=lerp(0,1,sm(0,.1,p));
+      if(!M.nar){
+        menu.style.transform='translate('+(M.mx+lerp(-70,0,em))+'px,'+M.my+'px)'; menu.style.opacity=em;
+      }
+      win.style.transform='translate('+M.wx+'px,'+(M.wy+lerp(40,0,em))+'px)';
+      hint.style.opacity=1-sm(.02,.12,p);
+      var co=sm(.12,.26,p); ctrl.style.opacity=co; ctrl.style.pointerEvents=co>.6?'auto':'none';
+    }
+    function frame(){
+      raf=0; tgt=readP(); cur=rmS?tgt:cur+(tgt-cur)*.14;
+      tx+=(ttx-tx)*.08; ty+=(tty-ty)*.08;
+      render(cur);
+      if(inView) raf=requestAnimationFrame(frame);
+    }
+    function kick(){ if(!raf) raf=requestAnimationFrame(frame); }
+    if('IntersectionObserver' in window){
+      new IntersectionObserver(function(es){ inView=es[0].isIntersecting; if(inView) kick(); },{rootMargin:'120px 0px'}).observe(st);
+    }else{ inView=true; kick(); }
+    addEventListener('scroll',function(){ if(inView) kick(); },{passive:true});
+    addEventListener('resize',measure);
+    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(measure);
+    if(!rmS){
+      st.addEventListener('pointermove',function(e){ if(e.pointerType!=='mouse') return; var r=st.getBoundingClientRect(); ttx=((e.clientX-r.left)/r.width-.5)*2; tty=((e.clientY-r.top)/r.height-.5)*2; });
+      st.addEventListener('pointerleave',function(){ ttx=0; tty=0; });
+    }
+    function goTo(i){
+      i=Math.max(0,Math.min(SC.length-1,i));
+      if(rmS){ forced=i; render(1); return; }
+      var top0=tr.getBoundingClientRect().top+scrollY, total=tr.offsetHeight-st.offsetHeight;
+      scrollTo({top:top0+total*(.2+.8*(i+.5)/SC.length),behavior:'smooth'});
+    }
+    $('swPrev').addEventListener('click',function(){goTo(act-1);});
+    $('swNext').addEventListener('click',function(){goTo(act+1);});
+    dots.forEach(function(d){ d.addEventListener('click',function(){goTo(+d.getAttribute('data-i'));}); });
+    /* pantalla ampliada */
+    var dl=$('swlight'), lastFocus=null;
+    function openShot(i){
+      var c=SC[i]; lastFocus=document.activeElement;
+      $('swlImg').src=c.img; $('swlImg').alt='Pantalla: '+c.t; $('swlNum').textContent='// 0'+(i+1)+' · pantalla'; $('swlTitle').textContent=c.t; $('swlDesc').textContent=c.d;
+      document.documentElement.classList.add('lock'); dl.showModal(); $('swClose').focus({preventScroll:true});
+    }
+    function closeShot(){ if(dl.open) dl.close(); }
+    dl.addEventListener('close',function(){ document.documentElement.classList.remove('lock'); if(lastFocus&&lastFocus.focus) lastFocus.focus({preventScroll:true}); });
+    dl.addEventListener('click',function(e){ if(e.target===dl||e.target.classList.contains('wlin')) closeShot(); });
+    $('swClose').addEventListener('click',closeShot);
+    win.addEventListener('click',function(){ openShot(act); });
+    win.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openShot(act); } });
     setAct(0); measure();
   })();
 
