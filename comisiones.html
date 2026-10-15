@@ -624,6 +624,30 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
       </span>
     </button>
 
+  <section class="wfolio" id="webfolio" aria-label="Portafolio de páginas web">
+    <header class="folio-head reveal">
+      <div class="eyebrow mono">// Portafolio · páginas web</div>
+      <h2>Mis <span class="serif">páginas web</span></h2>
+      <p>Mi propia web: una página principal y sus subpáginas. Sigue bajando y toca una para verla en grande.</p>
+    </header>
+    <section class="wtrack" id="wTrack" aria-label="Capturas de la página principal y subpáginas">
+      <div class="wstage" id="wStage">
+        <svg class="wlines" id="wLines" aria-hidden="true"></svg>
+        <div id="wWins"></div>
+        <div class="whint mono" id="wHint"><span>Sigue bajando</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v15M6 13l6 6 6-6"/></svg></div>
+        <div class="wctrl" id="wCtrl">
+          <div class="wcp">
+            <button class="arrow" type="button" id="wPrev" aria-label="Página anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+            <div class="meta" aria-live="polite"><em id="wNum"></em><b id="wTitle"></b><span id="wDesc"></span></div>
+            <button class="arrow" type="button" id="wNext" aria-label="Página siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+          </div>
+          <div class="dots" id="wDots"></div>
+        </div>
+      </div>
+    </section>
+  </section>
+
+
     <button class="card l reveal fromL" type="button" id="software" data-open="software" data-k="software" aria-haspopup="dialog">
       <span class="cin">
         <span class="num">// 03</span>
@@ -647,29 +671,6 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
     </button>
   </div>
 
-
-  <section class="wfolio" id="webfolio" aria-label="Portafolio de páginas web">
-    <header class="folio-head reveal">
-      <div class="eyebrow mono">// Portafolio · páginas web</div>
-      <h2>Mis <span class="serif">páginas web</span></h2>
-      <p>Mi propia web: una página principal y sus subpáginas. Sigue bajando y toca una para verla en grande.</p>
-    </header>
-    <section class="wtrack" id="wTrack" aria-label="Capturas de la página principal y subpáginas">
-      <div class="wstage" id="wStage">
-        <svg class="wlines" id="wLines" aria-hidden="true"></svg>
-        <div id="wWins"></div>
-        <div class="whint mono" id="wHint"><span>Sigue bajando</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v15M6 13l6 6 6-6"/></svg></div>
-        <div class="wctrl" id="wCtrl">
-          <div class="wcp">
-            <button class="arrow" type="button" id="wPrev" aria-label="Página anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-            <div class="meta" aria-live="polite"><em id="wNum"></em><b id="wTitle"></b><span id="wDesc"></span></div>
-            <button class="arrow" type="button" id="wNext" aria-label="Página siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
-          </div>
-          <div class="dots" id="wDots"></div>
-        </div>
-      </div>
-    </section>
-  </section>
 
   <section class="contact order reveal" id="contacto">
     <div class="oleft">
