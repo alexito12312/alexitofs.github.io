@@ -8,6 +8,8 @@
   var DURACION = 2.3; /* segundos que dura en total */
 
   try { if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch (e) {}
+  /* si vienes de otra página del sitio (menú, enlaces, botón Atrás) no se muestra: solo al abrir desde afuera */
+  try { if (document.referrer && new URL(document.referrer).origin === location.origin) return; } catch (e) {}
   try { if (sessionStorage.getItem('alexitoTrans') !== null) return; } catch (e) {} /* si llegas desde otra pagina, solo va la transicion */
   var esIndex = /(^|\/)(index\.html)?$/.test(location.pathname);
   try {
