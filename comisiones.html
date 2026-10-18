@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1">
 <title>Comisiones Alexito FS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -317,7 +317,7 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
 .folio-head h2 .serif{display:block}
 .folio-head p{margin:0; color:var(--mute); max-width:46ch; font-size:clamp(16px,1.8vw,19px)}
 .track{position:relative; width:100vw; margin-left:calc(50% - 50vw); height:330svh; margin-top:calc(-1 * clamp(0px,3vw,40px))}
-.stage{position:sticky; top:0; height:100svh; min-height:560px; overflow:hidden; perspective:1400px}
+.stage{position:sticky; top:0; height:100svh; min-height:560px; overflow:hidden; perspective:1400px; contain:paint}
 .glow{position:absolute; left:50%; bottom:-12%; width:min(80vmin,820px); aspect-ratio:1; margin-left:calc(min(80vmin,820px) / -2); border-radius:50%;
   background:radial-gradient(circle, rgba(255,111,174,.6), rgba(255,111,174,0) 66%); filter:blur(8px); z-index:1; pointer-events:none}
 .ring{position:absolute; left:50%; bottom:6%; width:min(62vmin,640px); aspect-ratio:1; margin-left:calc(min(62vmin,640px) / -2); border-radius:50%; border:2px dashed rgba(255,255,255,.4); z-index:1; pointer-events:none}
@@ -420,6 +420,7 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
 .js .reveal{opacity:0; transform:translateY(34px); transition:opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1)}
 .js .reveal.fromL{transform:translate3d(-80px,30px,0)}
 .js .reveal.fromR{transform:translate3d(80px,30px,0)}
+@media(max-width:900px){.js .reveal.fromL,.js .reveal.fromR{transform:translate3d(0,30px,0)}}
 .js .reveal.in{opacity:1; transform:none}
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto}
@@ -1022,7 +1023,7 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
     active=i; layout(); update();
   }
   function measure(){
-    var W=stage.clientWidth, H=stage.clientHeight, nar=W<820||H>W*1.05;
+    var W=stage.clientWidth, H=stage.clientHeight, nar=W<820||H>W*1.05||(W<1100&&matchMedia('(pointer:coarse)').matches);
     M.W=W; M.H=H; M.nar=nar;
     var ch=Math.min(H*(nar?.62:.86),nar?Math.max(560,W*.95):740);
     charEl.style.setProperty('--ch',ch+'px');
@@ -1061,7 +1062,8 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
     var m=sm(.06,.5,p), tx=-(0.5-M.cxf)*M.W*m, sc=M.s0+(M.s1-M.s0)*m;
     charEl.style.transform='translate3d('+tx+'px,0,0) scale('+sc+') rotate('+(-3*(1-m))+'deg)';
     glow.style.transform='translate3d('+(tx*.55)+'px,0,0)';
-    nameEl.style.transform='translate3d(calc(-50% + '+(M.nar?(innerWidth<700?0:tx*.55):(M.nameCx-M.W/2)*m)+'px),'+(m*10)+'px,0)';
+    var nx=M.nar?Math.max(innerWidth<700?0:tx*.55,-(M.W/2-nameEl.offsetWidth/2-10)):(M.nameCx-M.W/2)*m;
+    nameEl.style.transform='translate3d(calc(-50% + '+nx+'px),'+(m*10)+'px,0)';
     ring.style.transform='translate3d('+(tx*.3)+'px,'+(m*-18)+'px,0)';
     hint.style.opacity=1-sm(.02,.14,p);
     ctrl.style.opacity=sm(.5,.8,p);
@@ -1076,7 +1078,8 @@ dialog.modal::backdrop{background:rgba(10,8,25,.38); backdrop-filter:blur(18px);
   }
   var ticking=false;
   addEventListener('scroll',function(){ if(!ticking){ticking=true;requestAnimationFrame(function(){ticking=false;update();});} },{passive:true});
-  addEventListener('resize',measure);
+  addEventListener('resize',measure); addEventListener('orientationchange',function(){setTimeout(measure,250);}); addEventListener('load',measure);
+  if('ResizeObserver' in window){ new ResizeObserver(function(){measure();}).observe(stage); }
   if('IntersectionObserver' in window){
     new IntersectionObserver(function(es){ inView=es[0].isIntersecting; syncPlay(); },{threshold:.15}).observe(stage);
   }else{ inView=true; }
