@@ -44,8 +44,8 @@
          paypal:  tu usuario de PayPal.me (lo que va después de paypal.me/), ej. 'AlexitoFS'. El link ya lleva el precio.
          discord: link de invitación al Discord (mejor uno que no caduque), ej. 'https://discord.gg/xxxxxx'
          Si alguno está vacío, su botón sale como "pronto". */
-      paypal: '',
-      discord: '',
+      paypal: 'AlexanderM83',
+      discord: 'https://discord.gg/HUHpyqYdVD',
       notaCompra: 'Los pagos son por PayPal y se entregan a mano. Si algo falla, avísanos en tu ticket con el comprobante.'
     },
 
@@ -56,7 +56,7 @@
       { tipo: 'noticia', titulo: 'Ahora somos FurryLand', texto: 'El server estrenó nombre. El pueblo del lobby sigue siendo el Puerto de Valdrena, con su faro, su casino y sus misiones.', img: 'minecraft-media/vista_novedades.png', boton: { texto: 'Ver rangos', ir: 'rangos' } },
       { tipo: 'actualizacion', titulo: 'Warden Ancestral', texto: 'Un jefe de 4.5 bloques con venas de sculk que brillan. Suelta el Arco de la Tormenta y el Amuleto del Silencio.', img: 'minecraft-media/vista_warden.png', boton: { texto: 'Ver armas', ir: 'armas' } },
       { tipo: 'evento', titulo: 'Bosses con cuerpo 3D', texto: 'Caminan, atacan y se desmoronan al morir. Derrótalos para ganar la Llave de Jefe y sus armas exclusivas.', img: 'minecraft-media/vista_bosses_3d.png', boton: { texto: 'Ver armaduras', ir: 'armaduras' } },
-      { tipo: 'oferta', titulo: 'Espíritus de paga', texto: 'Mascotas que brillan en la oscuridad y sueltan partículas. Desde $50 MXN.', img: 'minecraft-media/vista_mascotas.png', boton: { texto: 'Ver items', ir: 'items' } },
+      { tipo: 'oferta', titulo: 'Espíritus de paga', texto: 'Mascotas que brillan en la oscuridad y sueltan partículas. Desde $50 MXN.', img: 'minecraft-media/mascotas.png', boton: { texto: 'Ver items', ir: 'items' } },
       { tipo: 'noticia', titulo: 'Top Donador', texto: 'Dona más de 15 USD y llévate prefijo dorado, colores en el chat y el Kit Top Donador cada 3 días.', img: '', boton: { texto: 'Ver Donadores', ir: 'donadores' } }
     ],
 
@@ -134,14 +134,15 @@
        img: textura real · sprite: recorte de una imagen · icono: dibujo genérico (gema, estrella, cofre...) */
     items: [
       /* espíritus (mascotas de paga) */
-      { nombre: 'Conejo Lunar', dePaga: true, precio: 50, sprite: [0, 1], descripcion: 'Suerte II, Salto II, sin daño por caída y +50% de experiencia.' },
-      { nombre: 'Rana Esmeralda', dePaga: true, precio: 50, sprite: [1, 1], descripcion: 'Salto II, respiración, Gracia del delfín, sin caída e imán de objetos.' },
-      { nombre: 'Mariposa Aurora', dePaga: true, precio: 60, icono: 'estrella', color: '#8fd8ff', descripcion: 'Caída lenta, Velocidad I, Regeneración I y sin daño por caída.' },
-      { nombre: 'Zorro Espectral', dePaga: true, precio: 60, sprite: [2, 1], descripcion: 'Velocidad II, visión nocturna, imán de objetos y +50% de experiencia.' },
-      { nombre: 'Abeja Dorada', dePaga: true, precio: 70, sprite: [3, 1], descripcion: 'Prisa II, te cura 1 corazón cada 15 s y no te da hambre.' },
-      { nombre: 'Araña Abisal', dePaga: true, precio: 70, sprite: [4, 1], descripcion: 'Visión nocturna, Fuerza I e inmunidad al veneno y al wither.' },
-      { nombre: 'Foquita Glaciar', dePaga: true, precio: 70, icono: 'gema', color: '#7cd3f0', descripcion: 'Respiración acuática IV y Gracia del delfín III: pica, ve y camina bajo el agua sin frenarte.' },
-      { nombre: 'Gato Real', dePaga: true, precio: 80, icono: 'estrella', color: 'oro', descripcion: 'Absorción III, Resistencia I, Regeneración I y Suerte I, sin lentitud. Lleva corona.' },
+      /* sprite: [columna, fila] en minecraft-media/mascotas.png (renders reales del server) */
+      { nombre: 'Conejo Lunar', dePaga: true, precio: 50, sprite: [0, 2], descripcion: 'Suerte II, Salto II, sin daño por caída y +50% de experiencia.' },
+      { nombre: 'Rana Esmeralda', dePaga: true, precio: 50, sprite: [1, 2], descripcion: 'Salto II, respiración, Gracia del delfín, sin caída e imán de objetos.' },
+      { nombre: 'Mariposa Aurora', dePaga: true, precio: 60, sprite: [2, 2], descripcion: 'Caída lenta, Velocidad I, Regeneración I y sin daño por caída.' },
+      { nombre: 'Zorro Espectral', dePaga: true, precio: 60, sprite: [3, 2], descripcion: 'Velocidad II, visión nocturna, imán de objetos y +50% de experiencia.' },
+      { nombre: 'Abeja Dorada', dePaga: true, precio: 70, sprite: [4, 2], descripcion: 'Prisa II, te cura 1 corazón cada 15 s y no te da hambre.' },
+      { nombre: 'Araña Abisal', dePaga: true, precio: 70, sprite: [0, 3], descripcion: 'Visión nocturna, Fuerza I e inmunidad al veneno y al wither.' },
+      { nombre: 'Foquita Glaciar', dePaga: true, precio: 70, sprite: [1, 3], descripcion: 'Respiración acuática IV y Gracia del delfín III: pica, ve y camina bajo el agua sin frenarte.' },
+      { nombre: 'Gato Real', dePaga: true, precio: 80, sprite: [2, 3], descripcion: 'Absorción III, Resistencia I, Regeneración I y Suerte I, sin lentitud. Lleva corona.' },
       /* protecciones de paga */
       { nombre: 'Protección Esmeralda', dePaga: true, precio: 80, icono: 'gema', color: 'esmeralda', descripcion: 'Bloque que protege un terreno de 256x256 de arriba a abajo.' },
       { nombre: 'Protección Real', dePaga: true, precio: 150, icono: 'gema', color: 'oro', descripcion: 'Bloque que protege un terreno de 512x512 de arriba a abajo.' },
@@ -149,10 +150,14 @@
       /* mascotas con dinero del juego */
       { nombre: 'Conejo de Pradera', dePaga: false, sprite: [0, 0], obtener: '/mascotas por $8,000 del juego.', descripcion: 'Suerte I.' },
       { nombre: 'Rana del Pantano', dePaga: false, sprite: [1, 0], obtener: '/mascotas por $10,000 del juego.', descripcion: 'Salto II.' },
-      { nombre: 'Zorro Rosado', dePaga: false, sprite: [2, 0], obtener: '/mascotas por $15,000 del juego.', descripcion: 'Velocidad I.' },
-      { nombre: 'Araña de Cueva', dePaga: false, sprite: [3, 0], obtener: '/mascotas por $18,000 del juego.', descripcion: 'Visión nocturna.' },
-      { nombre: 'Abeja Obrera', dePaga: false, sprite: [4, 0], obtener: '/mascotas por $20,000 del juego.', descripcion: 'Prisa I.' },
-      { nombre: 'Zorro de Fuego', dePaga: false, img: 'minecraft-media/vista_zorro_fuego.png', obtener: '/mascotas por $30,000 del juego.', descripcion: 'Resistencia al fuego y tus golpes prenden fuego.' },
+      { nombre: 'Mariposa Monarca', dePaga: false, sprite: [2, 0], obtener: '/mascotas por $12,000 del juego.', descripcion: 'Caída lenta (si te agachas caes normal).' },
+      { nombre: 'Zorro Rosado', dePaga: false, sprite: [3, 0], obtener: '/mascotas por $15,000 del juego.', descripcion: 'Velocidad I.' },
+      { nombre: 'Araña de Cueva', dePaga: false, sprite: [4, 0], obtener: '/mascotas por $18,000 del juego.', descripcion: 'Visión nocturna.' },
+      { nombre: 'Abeja Obrera', dePaga: false, sprite: [0, 1], obtener: '/mascotas por $20,000 del juego.', descripcion: 'Prisa I.' },
+      { nombre: 'Gato Gordo', dePaga: false, sprite: [3, 1], obtener: '/mascotas por $22,000 del juego.', descripcion: 'Lentitud II, pero Absorción II y Resistencia I.' },
+      { nombre: 'Guacamaya Escarlata', dePaga: false, sprite: [4, 1], obtener: '/mascotas por $28,000 del juego.', descripcion: 'Tus golpes cuerpo a cuerpo dan Levitación (no afecta a bosses).' },
+      { nombre: 'Zorro de Fuego', dePaga: false, sprite: [2, 1], obtener: '/mascotas por $30,000 del juego.', descripcion: 'Resistencia al fuego y tus golpes prenden fuego.' },
+      { nombre: 'Zorro Espadachín', dePaga: false, sprite: [1, 1], obtener: '/mascotas por $35,000 del juego.', descripcion: 'Fuerza II, Absorción I y Regeneración I, pero salen más monstruos cerca.' },
       /* tótems */
       { nombre: 'Tótem del Fénix', dePaga: false, img: TEX + 'totem_fenix.png', obtener: '/tiendaespecial por $60,000 del juego, o en botín.', descripcion: 'Te revive con Resistencia al fuego, Regeneración III, Fuerza I y Absorción III.' },
       { nombre: 'Tótem del Viento', dePaga: false, img: TEX + 'totem_viento.png', obtener: '/tiendaespecial por $35,000 del juego.', descripcion: 'Te revive y te teletransporta lejos con Caída lenta y Velocidad II.' },

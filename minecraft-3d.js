@@ -330,7 +330,7 @@
       brazoD.add(porta); brazoD.rotation.x = -.38; piezas('arma', a);
     }
 
-    root.userData = { cab: cab, cola: cola, brazoD: brazoD, brazoI: brazoI, piernaD: piernaD, piernaI: piernaI, capa: capa, partes: partes, conArma: !!spec.arma };
+    root.userData = { cuerpo: [mPelo, mCara, mOreja, mOI, mTor, mRopa, mBrazo, mPierna], cab: cab, cola: cola, brazoD: brazoD, brazoI: brazoI, piernaD: piernaD, piernaI: piernaI, capa: capa, partes: partes, conArma: !!spec.arma };
     return root;
   }
 
@@ -535,14 +535,19 @@
         if (u.capa) u.capa.rotation.x = .14 + Math.sin(t * 1.8) * .05;
       }
       /* resaltar la pieza que el visitante señala en la lista */
-      var pulso = .5 + .5 * Math.sin(t * 6);
+      /* la pieza elegida brilla en turquesa (un color que no usa ninguna armadura) y las demás se oscurecen */
+      var pulso = .5 + .5 * Math.sin(t * 5), hay = !!v.resaltado;
       if (u.partes) Object.keys(u.partes).forEach(function (slot) {
         var on = v.resaltado === slot;
         u.partes[slot].forEach(function (m) {
-          (m.userData.mats || []).forEach(function (mt) { if (mt.emissive) mt.emissive.setRGB(on ? .32 * pulso + .08 : 0, on ? .12 * pulso : 0, on ? .22 * pulso + .05 : 0); });
-          m.scale.setScalar(on ? 1.04 : 1);
+          (m.userData.mats || []).forEach(function (mt) {
+            if (mt.emissive) mt.emissive.setRGB(0, on ? .14 + .14 * pulso : 0, on ? .12 + .12 * pulso : 0);
+            if (mt.color) { if (on) mt.color.setRGB(.5, 1, .9); else mt.color.setScalar(hay ? .4 : 1); }
+          });
+          m.scale.setScalar(on ? 1.05 : 1);
         });
       });
+      if (u.cuerpo) u.cuerpo.forEach(function (mt) { mt.color.setScalar(hay ? .5 : 1); });
 
       asegurar(w, h);
       R.setViewport(0, RH - h, w, h); R.setScissor(0, RH - h, w, h); R.setScissorTest(true);

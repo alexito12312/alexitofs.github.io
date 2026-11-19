@@ -174,7 +174,7 @@
 
   function tarjetaGrande(panelId, o) {
     var info = datosPiezas(o.set, o.extraPieza);
-    var c = el('<article class="mc-big' + (o.destacado ? ' dest' : '') + '" style="--c:' + esc(o.color || '#ff6fae') + '">' +
+    var c = el('<article class="mc-big' + (o.destacado ? ' dest' : '') + (o.rango ? ' rango' : '') + '" style="--c:' + esc(o.color || '#ff6fae') + '">' +
       '<div class="mc-stage">' + (o.ribbon ? '<span class="ribbon">' + esc(o.ribbon) + '</span>' : '') + '<canvas aria-label="Modelo 3D de ' + esc(o.nombre) + '" role="img"></canvas>' +
       '<span class="hint">' + (tactil ? 'Arrastra para girar · toca una pieza' : 'Arrastra para girar · pasa el cursor por una pieza') + '</span><div class="mc-pop" role="dialog" aria-live="polite" hidden></div></div>' +
       '<div class="mc-info"><div class="mc-top"><div><span class="eyebrow">' + esc(o.eyebrow || '') + '</span><h3>' + esc(o.nombre) + '</h3></div>' + (o.sinPrecio ? '' : precio(o.precio, o.gratis)) + '</div>' +
@@ -230,10 +230,10 @@
     }
   }
 
-  /* recorte de una mascota en la imagen vista_mascotas.png (5 columnas x 2 filas) */
+  /* recorte de una mascota en minecraft-media/mascotas.png (renders del server: 5 columnas x 4 filas de 200 px) */
   function sprite(sp) {
-    var W = 1300, H = 690, w = 210, h = 230, x = sp[0] * 260 + 25, y = sp[1] ? 400 : 82;
-    return '<div class="spr" style="background-image:url(minecraft-media/vista_mascotas.png);background-size:' + (W / w * 100) + '% auto;background-position:' + (x / (W - w) * 100) + '% ' + (y / (H - h) * 100) + '%"></div>';
+    var W = 1000, H = 800, w = 200, h = 200, x = sp[0] * w, y = sp[1] * h;
+    return '<div class="spr" style="background-image:url(minecraft-media/mascotas.png);background-size:' + (W / w * 100) + '% auto;background-position:' + (x / (W - w) * 100) + '% ' + (y / (H - h) * 100) + '%"></div>';
   }
 
   var CONSTRUIR = {
@@ -243,7 +243,7 @@
         p.appendChild(tarjetaGrande('p-rangos', {
           nombre: r.nombre, color: r.color, precio: r.precio, gratis: r.gratis, descripcion: r.descripcion, ventajas: r.ventajas, tambien: r.tambien,
           set: r.kit || {}, piel: r.piel, capa: r.capa, destacado: r.destacado, ribbon: r.destacado ? 'Más popular' : '',
-          eyebrow: 'Rango VIP', tituloPiezas: 'Kit del rango', textoBoton: 'Comprar ' + r.nombre
+          eyebrow: 'Rango VIP', tituloPiezas: 'Kit del rango', textoBoton: 'Comprar ' + r.nombre, rango: true
         }));
       });
     },
