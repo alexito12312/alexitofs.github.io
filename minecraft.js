@@ -9,7 +9,10 @@
   function el(html) { var t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstChild; }
   function dinero(p, mon) { return esc(TI.simbolo || '$') + esc(Number(p).toLocaleString('es-MX')) + '<small>' + esc(mon || TI.moneda || 'MXN') + '</small>'; }
   function precio(p, gratis) { return p == null ? '<span class="mc-free">' + esc(gratis || 'Gratis · se consigue jugando') + '</span>' : '<div class="mc-price">' + dinero(p) + '</div>'; }
-  function comprar(nombre, texto) { return '<a class="btn btn-primary" href="' + esc(TI.comprarUrl || 'contacto.html') + '" data-item="' + esc(nombre) + '">' + esc(texto || TI.comprarTexto || 'Comprar') + '</a>'; }
+  /* botón que abre la ventana de compra (PayPal + ticket de Discord) */
+  function comprar(nombre, texto, monto, moneda, donacion) {
+    return '<button type="button" class="btn btn-primary mc-comprar" data-item="' + esc(nombre) + '" data-monto="' + esc(monto == null ? '' : monto) + '" data-moneda="' + esc(moneda || TI.moneda || 'MXN') + '"' + (donacion ? ' data-donacion="1"' : '') + '>' + esc(texto || TI.comprarTexto || 'Comprar') + '</button>';
+  }
   function colorMat(m) { var p = (MC.PAL && MC.PAL[m]) || null; return p ? p[0] : (m && m.charAt && m.charAt(0) === '#' ? m : '#d4d4d8'); }
   function chips(en) { return en && en.length ? en.map(function (e) { return '<span>' + esc(e) + '</span>'; }).join('') : '<span class="none">Sin encantamientos</span>'; }
   var RAREZA = { 'Raro': 'raro', 'Épico': 'epico', 'Legendario': 'legendario' };
@@ -181,7 +184,7 @@
       '<h4>' + esc(o.tituloPiezas || 'Piezas') + ' <span class="tip">' + (tactil ? '· toca una para ver sus encantamientos' : '· pasa el cursor para ver sus encantamientos') + '</span></h4>' + listaPiezas(info) +
       (o.tambien && o.tambien.length ? '<h4>También trae</h4><ul class="mc-perks soft">' + o.tambien.map(function (v) { return '<li>' + esc(v) + '</li>'; }).join('') + '</ul>' : '') +
       (o.obtener ? '<div class="mc-obt"><b>Cómo se consigue:</b> ' + esc(o.obtener) + '</div>' : '') +
-      (o.precio != null && !o.sinPrecio ? '<div class="mc-actions">' + comprar(o.nombre, o.textoBoton) + '</div>' : (o.accion || '')) +
+      (o.precio != null && !o.sinPrecio ? '<div class="mc-actions">' + comprar(o.nombre, o.textoBoton, o.precio) + '</div>' : (o.accion || '')) +
       '</div></article>');
     c.__piezas = info;
     engancharLista(c);
@@ -246,10 +249,17 @@
     },
     items: function (p) {
       var lista = D.items || [];
-      p.innerHTML = '<span class="eyebrow">Categoría</span><h2>Items</h2><p class="lede">Los de paga se compran con dinero real (MXN). Los gratis se consiguen jugando, con el dinero del juego o en botín.</p>' +
-        '<div class="mc-filter" role="group" aria-label="Filtrar items"><button type="button" data-f="todos" aria-pressed="true">Todos</button><button type="button" data-f="pago" aria-pressed="false">De paga</button><button type="button" data-f="gratis" aria-pressed="false">Gratis</button></div><div class="mc-grid"></div>';
-      var g = p.querySelector('.mc-grid');
+      var nPago = lista.filter(function (i) { return i.dePaga; }).length, nGratis = lista.length - nPago;
+      p.innerHTML = '<span class="eyebrow">Categoría</span><h2>Items</h2>' +
+        '<nav class="mc-saltos" aria-label="Secciones de items"><a href="#items-pago" class="pago"><b>De paga</b><small>' + nPago + ' items · dinero real</small></a><a href="#items-gratis" class="gratis"><b>Gratis</b><small>' + nGratis + ' items · se consiguen jugando</small></a></nav>' +
+        '<section class="mc-sec pago" id="items-pago"><div class="mc-sec-hd"><span class="mc-badge pago">De paga</span><h3>Tienda</h3><p>Se compran con dinero real (MXN): pagas por PayPal y abres un ticket en Discord para que te lo entreguen.</p></div><div class="mc-grid"></div></section>' +
+        '<section class="mc-sec gratis" id="items-gratis"><div class="mc-sec-hd"><span class="mc-badge gratis">Gratis</span><h3>Se consiguen jugando</h3><p>No cuestan dinero real: se compran con el dinero del juego, se craftean o salen en botín y bosses.</p></div><div class="mc-grid"></div></section>';
+      var gPago = p.querySelector('#items-pago .mc-grid'), gGratis = p.querySelector('#items-gratis .mc-grid');
+      [].forEach.call(p.querySelectorAll('.mc-saltos a'), function (a) {
+        a.addEventListener('click', function (e) { e.preventDefault(); var t = p.querySelector(a.getAttribute('href')); scrollTo({ top: t.getBoundingClientRect().top + scrollY - 150, behavior: 'smooth' }); });
+      });
       lista.forEach(function (it) {
+        var g = it.dePaga ? gPago : gGratis;
         var es3d = !!it.capa;
         var vis = es3d ? '<canvas role="img" aria-label="Vista 3D de ' + esc(it.nombre) + '"></canvas>' : it.sprite ? sprite(it.sprite) : it.img ? '<img src="' + esc(it.img) + '" alt="">' : '<canvas></canvas>';
         var c = el('<article class="mc-card" data-tipo="' + (it.dePaga ? 'pago' : 'gratis') + '" style="--c:' + esc(colorMat(it.capa || it.color || '#ff6fae')) + '">' +
@@ -257,15 +267,10 @@
           '<div class="body"><div class="row"><span class="mc-badge ' + (it.dePaga ? 'pago">De paga' : 'gratis">Gratis') + '</span>' + (it.dePaga && it.precio != null ? '<div class="mc-price">' + dinero(it.precio) + '</div>' : '') + '</div>' +
           '<h3>' + esc(it.nombre) + '</h3><p>' + esc(it.descripcion || '') + '</p>' +
           (it.obtener ? '<div class="mc-obt"><b>Cómo se consigue:</b> ' + esc(it.obtener) + '</div>' : '') +
-          (it.dePaga ? '<div class="mc-actions">' + comprar(it.nombre) + '</div>' : '') + '</div></article>');
+          (it.dePaga ? '<div class="mc-actions">' + comprar(it.nombre, null, it.precio) + '</div>' : '') + '</div></article>');
         if (es3d) visor('p-items', c.querySelector('.mc-stage'), { modo: 'personaje', capa: it.capa, piel: it.piel || {}, giroInicial: Math.PI * .85 });
         else if (!it.img && !it.sprite && MC.icono) MC.icono(c.querySelector('canvas'), it.icono, it.color);
         g.appendChild(c);
-      });
-      p.querySelector('.mc-filter').addEventListener('click', function (e) {
-        var b = e.target.closest('button'); if (!b) return;
-        [].forEach.call(this.children, function (x) { x.setAttribute('aria-pressed', x === b); });
-        [].forEach.call(g.children, function (card) { card.hidden = b.dataset.f !== 'todos' && card.dataset.tipo !== b.dataset.f; });
       });
     },
     armas: function (p) {
@@ -282,7 +287,7 @@
           (a.efecto ? '<p>' + esc(a.efecto) + '</p>' : '') +
           (en.length ? '<div class="mc-ench">' + chips(en) + '</div>' : '') +
           (a.obtener ? '<div class="mc-obt"><b>Cómo se consigue:</b> ' + esc(a.obtener) + '</div>' : '') +
-          (a.precio != null ? '<div class="mc-actions">' + comprar(a.nombre) + '</div>' : '') + '</div></article>');
+          (a.precio != null ? '<div class="mc-actions">' + comprar(a.nombre, null, a.precio) + '</div>' : '') + '</div></article>');
         visor('p-armas', c.querySelector('.mc-stage'), { modo: 'arma', arma: { tex: a.tex ? TEXDIR + 'items/' + a.tex + '.png' : null, tipo: a.tipo, mat: a.mat, brillo: en.length > 0 } });
         g.appendChild(c);
       });
@@ -313,11 +318,76 @@
         nombre: 'Kit Top Donador', color: '#f4cf38', set: d.kit || {}, piel: d.piel, capa: d.capa, sinPrecio: true, tambien: d.tambien,
         eyebrow: 'Exclusivo · cada 3 días', ribbon: 'Kit exclusivo', tituloPiezas: 'Equipo del kit',
         descripcion: 'Se reclama en el menú /kits una vez que tienes el rango Top Donador.',
-        accion: '<div class="mc-actions">' + comprar('Top Donador', 'Donar más de ' + sim + min + ' ' + mon) + '</div>'
+        accion: '<div class="mc-actions">' + comprar('Top Donador', 'Donar más de ' + sim + min + ' ' + mon, min, mon, true) + '</div>'
       }));
       p.appendChild(el('<div class="mc-box" style="margin-top:22px"><h3>Cómo conseguir el kit</h3><ol class="mc-steps">' + (d.pasos || []).map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ol></div>'));
     }
   };
+
+  /* =====================================================================
+     VENTANA DE COMPRA: 1) pagar por PayPal  2) abrir ticket en Discord  3) recibirlo en el server
+     Los links salen de tienda.paypal y tienda.discord en minecraft-datos.js
+     ===================================================================== */
+  var compra = el('<div class="mc-modal" role="dialog" aria-modal="true" aria-labelledby="mcm-t" hidden><div class="box">' +
+    '<button type="button" class="x" aria-label="Cerrar">×</button>' +
+    '<span class="eyebrow" id="mcm-tipo">Comprar</span><h3 id="mcm-t"></h3><div class="mcm-precio" id="mcm-precio"></div>' +
+    '<label class="mcm-nick"><span>Tu nick de Minecraft</span><input id="mcm-nick" type="text" autocomplete="off" spellcheck="false" maxlength="32" placeholder="Ej. Alexito_VT"><small>Los de Bedrock: con el punto delante (.Pepe)</small></label>' +
+    '<ol class="mcm-pasos">' +
+    '<li><div><b>Paga por PayPal</b><p id="mcm-p1"></p></div><a class="btn btn-primary" id="mcm-paypal" target="_blank" rel="noopener">Pagar con PayPal</a></li>' +
+    '<li><div><b>Abre un ticket en Discord</b><p>Entra al Discord, abre un ticket y pega este mensaje con tu comprobante de PayPal (captura o ID de la transacción):</p>' +
+    '<pre id="mcm-msg"></pre><div class="mcm-acc"><button type="button" class="btn" id="mcm-copiar">Copiar mensaje</button><a class="btn btn-primary" id="mcm-discord" target="_blank" rel="noopener">Abrir Discord</a></div></div></li>' +
+    '<li><div><b>Recíbelo en el server</b><p id="mcm-p3">Un admin revisa el pago y te lo entrega en el server, normalmente el mismo día.</p></div></li>' +
+    '</ol><p class="mcm-nota" id="mcm-nota"></p></div></div>');
+  document.body.appendChild(compra);
+  var actual = null, ultimoBoton = null;
+  function linkPaypal(monto, mon) {
+    var u = (TI.paypal || '').replace(/^https?:\/\/(www\.)?(paypal\.me|paypal\.com\/paypalme)\//i, '').replace(/\/.*$/, '');
+    if (!u) return '';
+    return 'https://www.paypal.com/paypalme/' + encodeURIComponent(u) + (monto ? '/' + encodeURIComponent(monto) + encodeURIComponent(mon || '') : '');
+  }
+  function mensaje() {
+    var nick = $('#mcm-nick').value.trim() || '(tu nick)';
+    var precioTxt = actual.monto ? (actual.donacion ? 'más de ' : '') + (TI.simbolo || '$') + actual.monto + ' ' + actual.moneda : '';
+    $('#mcm-msg').textContent = (actual.donacion ? 'Donación: Top Donador' : 'Compra: ' + actual.item) + (precioTxt ? ' (' + precioTxt + ')' : '') +
+      '\nNick de Minecraft: ' + nick + '\nJava o Bedrock: ' + '\nID de la transacción de PayPal: ' + '\n(adjunto la captura del pago)';
+  }
+  function setLink(a, url, textoSin) {
+    if (url) { a.href = url; a.removeAttribute('aria-disabled'); a.classList.remove('off'); a.dataset.t && (a.textContent = a.dataset.t); }
+    else { a.removeAttribute('href'); a.setAttribute('aria-disabled', 'true'); a.classList.add('off'); a.dataset.t = a.dataset.t || a.textContent; a.textContent = textoSin; }
+  }
+  function abrirCompra(b) {
+    desenfocar();
+    ultimoBoton = b;
+    actual = { item: b.dataset.item, monto: b.dataset.monto, moneda: b.dataset.moneda || TI.moneda || 'MXN', donacion: !!b.dataset.donacion };
+    $('#mcm-tipo').textContent = actual.donacion ? 'Donar' : 'Comprar';
+    $('#mcm-t').textContent = actual.donacion ? 'Top Donador' : actual.item;
+    $('#mcm-precio').innerHTML = actual.monto ? (actual.donacion ? '<small>más de</small> ' : '') + dinero(actual.monto, actual.moneda) : '';
+    $('#mcm-p1').innerHTML = actual.donacion
+      ? 'Dona <b>más de ' + esc((TI.simbolo || '$') + actual.monto + ' ' + actual.moneda) + '</b> (puedes cambiar la cantidad en PayPal). En la nota del pago escribe tu nick.'
+      : 'El link ya trae el precio (' + esc((TI.simbolo || '$') + actual.monto + ' ' + actual.moneda) + '). En la nota del pago escribe tu nick y lo que compras.';
+    setLink($('#mcm-paypal'), linkPaypal(actual.monto, actual.moneda), 'PayPal: pronto');
+    setLink($('#mcm-discord'), TI.discord || '', 'Discord: pronto');
+    $('#mcm-p3').textContent = actual.donacion ? 'Alexito te da el rango Top Donador a mano y reclamas tu kit en /kits.' : 'Un admin revisa el pago y te lo entrega en el server, normalmente el mismo día.';
+    $('#mcm-nota').textContent = TI.notaCompra || '';
+    mensaje();
+    compra.hidden = false; document.documentElement.classList.add('mc-sin-scroll');
+    setTimeout(function () { $('#mcm-nick').focus(); }, 50);
+  }
+  function cerrarCompra() { compra.hidden = true; document.documentElement.classList.remove('mc-sin-scroll'); if (ultimoBoton) ultimoBoton.focus(); }
+  $('#mcm-nick').addEventListener('input', mensaje);
+  try { $('#mcm-nick').value = localStorage.getItem('mcNick') || ''; } catch (e) {}
+  $('#mcm-nick').addEventListener('change', function () { try { localStorage.setItem('mcNick', this.value.trim()); } catch (e) {} });
+  $('#mcm-copiar').addEventListener('click', function () {
+    var b = this, txt = $('#mcm-msg').textContent;
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(function () { b.textContent = '¡Copiado!'; }, function () {
+      var r = document.createRange(); r.selectNodeContents($('#mcm-msg')); var s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'Selecciónalo y copia';
+    });
+    setTimeout(function () { b.textContent = 'Copiar mensaje'; }, 1800);
+  });
+  compra.querySelector('.x').addEventListener('click', cerrarCompra);
+  compra.addEventListener('click', function (e) { if (e.target === compra) cerrarCompra(); });
+  addEventListener('keydown', function (e) { if (e.key === 'Escape' && !compra.hidden) cerrarCompra(); });
+  document.addEventListener('click', function (e) { var b = e.target.closest && e.target.closest('.mc-comprar'); if (b) abrirCompra(b); });
 
   /* enlaces internos #rangos, #armas... (del carrusel o compartidos) */
   document.addEventListener('click', function (e) {

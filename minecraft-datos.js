@@ -30,7 +30,7 @@
     servidor: {
       nombre: 'FURRYLAND',
       autor: 'AlexitoFS',
-      logo: 'minecraft-media/logo-furryland.png', /* si no existe la imagen, se muestra el logo en letras */
+      logo: '', /* ruta de una imagen de logo, ej. 'minecraft-media/logo-furryland.png'. Vacío = logo en letras */
       ip: '',                                       /* pon aquí la IP pública cuando la tengas (vacío = no se muestra) */
       version: 'Java y Bedrock · Paper 26.3',
       lobby: 'Puerto de Valdrena'
@@ -39,8 +39,14 @@
     tienda: {
       moneda: 'MXN',
       simbolo: '$',
-      comprarUrl: 'contacto.html',   /* a dónde lleva el botón "Comprar" (tu Discord, tu tienda, etc.) */
-      comprarTexto: 'Comprar'
+      comprarTexto: 'Comprar',
+      /* CÓMO SE COMPRA: el botón "Comprar" abre una ventana con 3 pasos (PayPal → ticket en Discord → entrega).
+         paypal:  tu usuario de PayPal.me (lo que va después de paypal.me/), ej. 'AlexitoFS'. El link ya lleva el precio.
+         discord: link de invitación al Discord (mejor uno que no caduque), ej. 'https://discord.gg/xxxxxx'
+         Si alguno está vacío, su botón sale como "pronto". */
+      paypal: '',
+      discord: '',
+      notaCompra: 'Los pagos son por PayPal y se entregan a mano. Si algo falla, avísanos en tu ticket con el comprobante.'
     },
 
     /* ---------------- CARRUSEL ----------------
