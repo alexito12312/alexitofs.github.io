@@ -56,6 +56,7 @@
       { tipo: 'noticia', titulo: 'Ahora somos FurryLand', texto: 'El server estrenó nombre. El pueblo del lobby sigue siendo el Puerto de Valdrena, con su faro, su casino y sus misiones.', img: 'minecraft-media/vista_novedades.png', boton: { texto: 'Ver rangos', ir: 'rangos' } },
       { tipo: 'actualizacion', titulo: 'Warden Ancestral', texto: 'Un jefe de 4.5 bloques con venas de sculk que brillan. Suelta el Arco de la Tormenta y el Amuleto del Silencio.', img: 'minecraft-media/vista_warden.png', boton: { texto: 'Ver armas', ir: 'armas' } },
       { tipo: 'evento', titulo: 'Bosses con cuerpo 3D', texto: 'Caminan, atacan y se desmoronan al morir. Derrótalos para ganar la Llave de Jefe y sus armas exclusivas.', img: 'minecraft-media/vista_bosses_3d.png', boton: { texto: 'Ver armaduras', ir: 'armaduras' } },
+      { tipo: 'oferta', titulo: 'Nuevo: equipo de paga', texto: 'Armadura del Bastión (5 niveles), Mandoble del Berserker (10 niveles) y 18 objetos de utilidad con textura propia. En PvP quedan al nivel normal.', img: 'minecraft-media/vista_paga_utilidad.png', boton: { texto: 'Ver items', ir: 'items' } },
       { tipo: 'oferta', titulo: 'Espíritus de paga', texto: 'Mascotas que brillan en la oscuridad y sueltan partículas. Desde $50 MXN.', img: 'minecraft-media/mascotas.png', boton: { texto: 'Ver items', ir: 'items' } },
       { tipo: 'noticia', titulo: 'Top Donador', texto: 'Dona más de 15 USD y llévate prefijo dorado, colores en el chat y el Kit Top Donador cada 3 días.', img: '', boton: { texto: 'Ver Donadores', ir: 'donadores' } }
     ],
@@ -147,6 +148,26 @@
       { nombre: 'Protección Esmeralda', dePaga: true, precio: 80, icono: 'gema', color: 'esmeralda', descripcion: 'Bloque que protege un terreno de 256x256 de arriba a abajo.' },
       { nombre: 'Protección Real', dePaga: true, precio: 150, icono: 'gema', color: 'oro', descripcion: 'Bloque que protege un terreno de 512x512 de arriba a abajo.' },
 
+      /* objetos de utilidad de paga (_scripts/utilidad.py · Pagos.java): ligados al dueño, no se pierden al morir */
+      { nombre: 'Casco de Minero', dePaga: true, precio: 60, img: TEX + 'casco_minero.png', descripcion: 'Casco 3D. Bajo tierra te da Visión nocturna y Prisa I, y respiras bajo el agua siempre.' },
+      { nombre: 'Escafandra', dePaga: true, precio: 60, img: TEX + 'escafandra.png', descripcion: 'Casco de buzo 3D. Respiración infinita, y bajo el agua ves claro y minas igual de rápido.' },
+      { nombre: 'Sombrero de Pescador', dePaga: true, precio: 60, img: TEX + 'sombrero_pescador.png', descripcion: 'Gorro 3D. Los peces pican el doble de rápido y tienes +2 de Suerte para mejor botín de pesca.' },
+      { nombre: 'Sombrero de Paja', dePaga: true, precio: 60, img: TEX + 'sombrero_paja.png', descripcion: 'Gorro 3D. Los cultivos a 4 bloques de ti crecen mucho más rápido.' },
+      { nombre: 'Goggles de Explorador', dePaga: true, precio: 60, img: TEX + 'goggles_explorador.png', descripcion: 'Gorra 3D con gafas. Ves tus coordenadas en pantalla y los cofres a 8 bloques brillan.' },
+      { nombre: 'Paracaídas', dePaga: true, precio: 60, img: TEX + 'paracaidas.png', descripcion: 'En el pecho. Si caes más de 10 bloques se abre solo y bajas lento, sin daño. Se apaga 15 s al pelear contra jugadores.' },
+      { nombre: 'Delantal de Herrero', dePaga: true, precio: 60, img: TEX + 'delantal_herrero.png', descripcion: 'En el pecho. El yunque te cuesta 30% menos de niveles.' },
+      { nombre: 'Chaleco Salvavidas', dePaga: true, precio: 60, img: TEX + 'chaleco_salvavidas.png', descripcion: 'En el pecho. En el agua flotas y nadas rápido con Gracia del delfín; agáchate para hundirte. Se apaga 15 s al pelear contra jugadores.' },
+      { nombre: 'Botas de Rana', dePaga: true, precio: 60, img: TEX + 'botas_rana.png', descripcion: 'Salto III, sin daño en caídas cortas y Agilidad acuática III. Se apaga 15 s al pelear contra jugadores.' },
+      { nombre: 'Botas de Magma', dePaga: true, precio: 60, img: TEX + 'botas_magma.png', descripcion: 'Caminas sobre la lava: se enfría bajo tus pies unos segundos (agáchate para no hacerlo). Inmune a los bloques de magma.' },
+      { nombre: 'Raquetas de Nieve', dePaga: true, precio: 60, img: TEX + 'raquetas_nieve.png', descripcion: 'Caminas sobre nieve en polvo sin hundirte y vas con Velocidad II sobre hielo.' },
+      { nombre: 'Botas de Pluma', dePaga: true, precio: 60, img: TEX + 'botas_pluma.png', descripcion: 'Mantén el salto en el aire para planear. Caída de pluma IV. Se apaga 15 s al pelear contra jugadores.' },
+      { nombre: 'Mano de Goma', dePaga: true, precio: 60, img: TEX + 'mano_goma.png', descripcion: 'En la mano izquierda: +6 bloques de alcance para poner y romper bloques (no para pegar).' },
+      { nombre: 'Guante de Minero', dePaga: true, precio: 60, img: TEX + 'guante_minero.png', descripcion: 'En la mano izquierda: rompes bloques 25% más rápido.' },
+      { nombre: 'Imán', dePaga: true, precio: 60, img: TEX + 'iman.png', descripcion: 'Con traerlo en el inventario atrae objetos y experiencia a 6 bloques. Agáchate para apagarlo.' },
+      { nombre: 'Gancho', dePaga: true, precio: 60, img: TEX + 'gancho.png', descripcion: 'Lánzalo a un bloque y recógelo: te jala hacia él (espera de 3 s). También sirve para pescar. Se apaga 15 s al pelear contra jugadores.' },
+      { nombre: 'Varita del Constructor', dePaga: true, precio: 60, img: TEX + 'varita_constructor.png', descripcion: 'Clic derecho en un bloque: pone una fila de hasta 8 bloques iguales, tomándolos de tu inventario. Respeta las protecciones.' },
+      { nombre: 'Cubeta sin Fondo', dePaga: true, precio: 60, img: TEX + 'cubeta_sin_fondo.png', descripcion: 'Agua infinita: nunca se vacía.' },
+
       /* mascotas con dinero del juego */
       { nombre: 'Conejo de Pradera', dePaga: false, sprite: [0, 0], obtener: '/mascotas por $8,000 del juego.', descripcion: 'Suerte I.' },
       { nombre: 'Rana del Pantano', dePaga: false, sprite: [1, 0], obtener: '/mascotas por $10,000 del juego.', descripcion: 'Salto II.' },
@@ -200,6 +221,8 @@
       { nombre: 'Lanza del Leviatán', tex: 'lanza_leviatan', rareza: L, dano: 10, vel: 1.3, efecto: '+2.5 de alcance; 15% de tromba que atrae a los monstruos.', obtener: 'Solo en la Caja de Jefe (Llave de Jefe).' },
       { nombre: 'Mandoble del Titán', tex: 'mandoble_titan', rareza: L, dano: 12.5, vel: 0.9, efecto: 'Barrido del 60%; 12% de terremoto.', obtener: 'Solo en la Caja de Jefe (Llave de Jefe).' },
       { nombre: 'Guadaña del Warden', tex: 'guadana_warden', rareza: L, dano: 9.5, vel: 1.2, efecto: '15% de rayo sónico (+8 que ignora armadura); roba 10% de vida.', obtener: 'Solo en la Caja de Jefe (Llave de Jefe).' },
+      /* de paga con niveles (Pagos.java). precio = por nivel */
+      { nombre: 'Mandoble del Berserker', tex: 'mandoble_berserker', rareza: L, dano: 10, vel: 0.9, precio: 100, efecto: '10 niveles: el Filo sube de V a X y se suman Botín, Aspecto ígneo, Barrido, Reparación y Castigo. Golpe pesado en área, robo de vida, más daño con poca vida, Tajo sísmico y en el nivel 10 la Furia del Berserker. En PvP: Filo V y sin efectos.', obtener: 'De paga: $100 MXN por nivel (10 niveles). Queda ligado a ti y no se pierde al morir.' },
       /* arcos elementales */
       { nombre: 'Arco Ígneo', tex: 'arco_fuego', rareza: E, efecto: 'Con tensión completa dispara una bola de fuego.', obtener: '/tiendaespecial por $22,000 del juego, botín o Guardián Ígneo (8%).' },
       { nombre: 'Arco Glacial', tex: 'arco_hielo', rareza: E, efecto: 'Lentitud III 4 s y congelado.', obtener: '/tiendaespecial por $18,000 del juego o Iceologer (4%).' },
@@ -218,6 +241,7 @@
 
     /* ---------------- ARMADURAS del server (texturas reales) ---------------- */
     armaduras: [
+      set('bastion', 'del Bastión', L, 'diamante', 'De paga: $160 MXN por nivel (5 niveles). Queda ligada a ti y no se pierde al morir. En PvP: Protección IV y sin efectos.', ['Nivel 1: +4 corazones, resistencia al fuego y no te empujan', 'Nivel 2: +6 corazones, Salto I y caída lenta', 'Nivel 3: +8 corazones y visión nocturna', 'Nivel 4: +10 corazones y regeneración con poca vida', 'Nivel 5: +12 corazones, Resistencia I y onda de choque al caer', 'De 6% a 30% menos daño de monstruos'], { casco: ['Protección V → X', 'Espinas II → V', 'Reparación', 'Respiración III'], pechera: ['Protección V → X', 'Espinas II → V', 'Reparación', 'Prot. contra explosiones IV'], pantalones: ['Protección V → X', 'Espinas II → V', 'Reparación', 'Sigilo rápido III'], botas: ['Protección V → X', 'Espinas II → V', 'Reparación', 'Caída de pluma IV'] }, { color: '#46c8d8', precio: 160 }),
       set('kitsune', 'Kitsune', L, 'netherita', 'Solo la suelta la Kitsune de las Nueve Colas (12% por pieza).', ['Velocidad I y Salto I', '15% de esquivar golpes (8% en PvP)', 'Tus golpes queman con fuego de zorro'], { botas: ['Caída de pluma IV'] }, { color: '#e64a63' }),
       set('vikingo', 'Vikingo', E, 'hierro', 'En /tiendaespecial por $12,000 del juego cada pieza, o en botín.', ['+3 corazones y resistencia al empuje', 'Furia: Fuerza I con menos de 4 corazones'], {}, { color: '#c08b5a' }),
       set('caballero', 'del Caballero', E, 'hierro', 'En /tiendaespecial por $12,000 del juego cada pieza, o en botín.', ['+2 corazones y Resistencia I', 'Bloquear con escudo te cura medio corazón'], {}, { color: '#e1b43c' }),
