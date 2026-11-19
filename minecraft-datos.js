@@ -1,192 +1,254 @@
 /* =====================================================================
    FURRYLAND · DATOS DE LA TIENDA (minecraft.html)
-   Todo lo que se ve en la página sale de aquí. Edita textos, precios,
-   encantamientos y colores sin tocar el diseño.
+   Sacado de la bóveda de Obsidian (Servidor Valdrena) y de E:\ServidorMC.
+   Todo lo que se ve en la página sale de aquí: edita textos y precios sin tocar el diseño.
 
-   MATERIALES que entiende el visor 3D (para armaduras y armas):
-     cuero, cadena, hierro, oro, diamante, netherite, esmeralda,
-     amatista, rosa, madera, piedra, obsidiana
-     ...o un color propio, por ejemplo "#7cf0ff"
-
-   ARMAS (tipo): espada, hacha, arco, tridente
-
-   PIEZAS DE ARMADURA: casco, pechera, pantalones, botas
-     Cada pieza: { mat:'diamante', nombre:'(opcional)', encantamientos:['Protección IV', ...] }
-     Si una pieza tiene encantamientos, en 3D sale con el brillo morado.
-
-   PRECIO: un número (en la moneda de abajo) o null si es gratis / se consigue jugando.
+   MATERIALES vanilla del visor 3D: cuero, cadena, hierro, oro, diamante, netherite (o un color "#rrggbb")
+   SETS con textura real del server: pon  set:'kitsune'  y usa las capas de minecraft-media/tex/capas
+   ARMAS: tex:'nombre'  usa la textura real minecraft-media/tex/items/nombre.png
+          o  tipo:'espada'|'hacha'|'arco'|'tridente' + mat  para las vanilla
+   PRECIO: número en la moneda de abajo, o null si es gratis / se consigue jugando.
    ===================================================================== */
-window.FURRYLAND = {
+(function () {
+  var TEX = 'minecraft-media/tex/items/';
+  var R = 'Raro', E = 'Épico', L = 'Legendario';
 
-  servidor: {
-    nombre: 'FURRYLAND',
-    autor: 'AlexitoFS',
-    logo: 'minecraft-media/logo-furryland.png', /* si no existe la imagen, se muestra el logo en letras */
-    ip: 'play.furryland.net',                     /* EJEMPLO: pon la IP real del server */
-    version: 'Java y Bedrock · 1.21'
-  },
-
-  tienda: {
-    moneda: 'USD',
-    simbolo: '$',
-    comprarUrl: 'contacto.html',   /* a dónde lleva el botón "Comprar" (tu Discord, tu tienda, etc.) */
-    comprarTexto: 'Comprar'
-  },
-
-  /* ---------------- CARRUSEL: ofertas, noticias, actualizaciones ----------------
-     tipo: 'oferta' | 'noticia' | 'actualizacion' | 'evento'
-     img: ruta de la imagen (recomendado 1600x700). Si la dejas vacía, sale un fondo de color. */
-  carrusel: [
-    { tipo: 'oferta', titulo: '-30% en todos los rangos', texto: 'Solo este fin de semana. Sube de rango y llévate tu kit encantado.', img: '', boton: { texto: 'Ver rangos', ir: 'rangos' } },
-    { tipo: 'actualizacion', titulo: 'Nueva armadura: Cuarzo Rosa', texto: 'Llega la armadura más bonita del server, con Protección V. Consíguela en la mina profunda.', img: '', boton: { texto: 'Ver armaduras', ir: 'armaduras' } },
-    { tipo: 'evento', titulo: 'Evento de Navidad', texto: 'Cofres de regalo cada día, cosméticos de temporada y un jefe final con premio.', img: '' },
-    { tipo: 'noticia', titulo: 'Top donadores del mes', texto: 'Dona $15 o más y entra al Top Donador con kit exclusivo y tu nombre en el spawn.', img: '', boton: { texto: 'Ver Donadores', ir: 'donadores' } }
-  ],
-
-  /* ---------------- RANGOS: armadura del kit + arma de cada rango ---------------- */
-  rangos: [
-    {
-      nombre: 'Cachorro', color: '#7cf0b8', precio: 5,
-      descripcion: 'El primer paso en FurryLand. Ideal para empezar con buen equipo.',
-      ventajas: ['Prefijo [Cachorro] en el chat', '2 casas con /sethome', 'Kit cada 3 días', 'Acceso a /craft'],
-      kit: {
-        casco: { mat: 'hierro', encantamientos: ['Protección II', 'Irrompibilidad I'] },
-        pechera: { mat: 'hierro', encantamientos: ['Protección II', 'Irrompibilidad I'] },
-        pantalones: { mat: 'hierro', encantamientos: ['Protección II'] },
-        botas: { mat: 'hierro', encantamientos: ['Protección II', 'Caída de pluma II'] },
-        arma: { tipo: 'espada', mat: 'hierro', nombre: 'Espada del Cachorro', encantamientos: ['Filo II', 'Irrompibilidad I'] }
-      },
-      piel: { pelo: '#f7c6a5', ropa: '#2f6b55' }
-    },
-    {
-      nombre: 'Zorro', color: '#ffb35c', precio: 10, destacado: true,
-      descripcion: 'El favorito de la comunidad. Equipo de diamante y más comodidades.',
-      ventajas: ['Prefijo [Zorro] en el chat', '5 casas', 'Kit cada 2 días', '/craft y /ec (cofre de ender)', 'Color en el nombre'],
-      kit: {
-        casco: { mat: 'diamante', encantamientos: ['Protección III', 'Irrompibilidad II', 'Respiración I'] },
-        pechera: { mat: 'diamante', encantamientos: ['Protección III', 'Irrompibilidad II'] },
-        pantalones: { mat: 'diamante', encantamientos: ['Protección III', 'Irrompibilidad II'] },
-        botas: { mat: 'diamante', encantamientos: ['Protección III', 'Caída de pluma III'] },
-        arma: { tipo: 'espada', mat: 'diamante', nombre: 'Colmillo de Zorro', encantamientos: ['Filo III', 'Botín II', 'Irrompibilidad II'] }
-      },
-      piel: { pelo: '#ff9d5c', panza: '#fff4ea', ropa: '#3a2a5e' }
-    },
-    {
-      nombre: 'Alfa', color: '#ff6fae', precio: 20,
-      descripcion: 'El rango más alto. Netherite al máximo y todas las ventajas.',
-      ventajas: ['Prefijo [Alfa] animado', 'Casas ilimitadas', 'Kit cada día', '/fly en el lobby', '/nick y /hat', 'Partículas exclusivas'],
-      kit: {
-        casco: { mat: 'netherite', encantamientos: ['Protección IV', 'Irrompibilidad III', 'Reparación', 'Respiración III'] },
-        pechera: { mat: 'netherite', encantamientos: ['Protección IV', 'Irrompibilidad III', 'Reparación', 'Espinas II'] },
-        pantalones: { mat: 'netherite', encantamientos: ['Protección IV', 'Irrompibilidad III', 'Reparación'] },
-        botas: { mat: 'netherite', encantamientos: ['Protección IV', 'Caída de pluma IV', 'Reparación', 'Agilidad acuática III'] },
-        arma: { tipo: 'hacha', mat: 'netherite', nombre: 'Hacha del Alfa', encantamientos: ['Filo V', 'Irrompibilidad III', 'Reparación'] }
-      },
-      piel: { pelo: '#f7a8cb', ropa: '#1f1838' }
-    }
-  ],
-
-  /* ---------------- ITEMS ----------------
-     dePaga: true  = cosmético que se compra (lleva precio)
-     dePaga: false = item gratis del server (dice cómo se consigue)
-     icono: gema, pocion, llave, comida, cofre, capa, libro, estrella   (o img:'ruta.png')
-     capa: '#color' -> muestra el personaje en 3D usando esa capa */
-  items: [
-    { nombre: 'Capa Estelar', dePaga: true, precio: 4, capa: '#6b5bff', descripcion: 'Capa animada con brillo de estrellas. Solo se ve bonita, no da ventajas.' },
-    { nombre: 'Capa Sakura', dePaga: true, precio: 4, capa: '#ff8fc4', descripcion: 'Capa rosa con flor bordada en la espalda.' },
-    { nombre: 'Partículas de corazones', dePaga: true, precio: 3, icono: 'estrella', color: '#ff6fae', descripcion: 'Corazones flotando a tu alrededor al caminar.' },
-    { nombre: 'Mascota: Zorrito', dePaga: true, precio: 6, icono: 'gema', color: '#ff9d5c', descripcion: 'Un zorrito que te sigue a todas partes.' },
-    { nombre: 'Llave de cofre mítico', dePaga: true, precio: 2, icono: 'llave', color: 'oro', descripcion: 'Abre un cofre mítico en el spawn con premios al azar.' },
-    { nombre: 'Kit de bienvenida', dePaga: false, icono: 'cofre', color: 'madera', obtener: 'Escribe /kit inicio al entrar por primera vez.', descripcion: 'Herramientas de piedra, comida y una cama.' },
-    { nombre: 'Pan de la abuela', dePaga: false, icono: 'comida', color: '#d9a35b', obtener: 'Lo regalan los aldeanos del spawn cada día.', descripcion: 'Recupera mucha hambre y saturación.' },
-    { nombre: 'Poción de velocidad', dePaga: false, icono: 'pocion', color: '#5fd3ff', obtener: 'Premio de la parkour del lobby.', descripcion: 'Velocidad II durante 3 minutos.' },
-    { nombre: 'Libro de reglas', dePaga: false, icono: 'libro', color: '#a56cff', obtener: 'Te lo dan al entrar. También con /reglas.', descripcion: 'Todo lo que necesitas saber para jugar tranquilo.' }
-  ],
-
-  /* ---------------- ARMAS del server ---------------- */
-  armas: [
-    { nombre: 'Espada de Diamante', tipo: 'espada', mat: 'diamante', encantamientos: ['Filo V', 'Botín III', 'Aspecto ígneo II', 'Irrompibilidad III'], precio: null, obtener: 'Craftéala y encántala en la mesa del spawn.' },
-    { nombre: 'Hoja de Cuarzo Rosa', tipo: 'espada', mat: 'rosa', encantamientos: ['Filo VI', 'Barrido III', 'Reparación'], precio: 8, obtener: 'Arma exclusiva de la tienda.' },
-    { nombre: 'Hacha de Netherite', tipo: 'hacha', mat: 'netherite', encantamientos: ['Filo V', 'Eficiencia V', 'Irrompibilidad III'], precio: null, obtener: 'Mejórala en la mesa de herrería.' },
-    { nombre: 'Arco del Bosque', tipo: 'arco', mat: 'madera', encantamientos: ['Poder V', 'Llama', 'Infinidad'], precio: null, obtener: 'Premio del evento semanal de tiro.' },
-    { nombre: 'Tridente Abisal', tipo: 'tridente', mat: 'esmeralda', encantamientos: ['Lealtad III', 'Canalización', 'Empalamiento V'], precio: 6, obtener: 'Solo en la tienda o en el jefe del océano.' },
-    { nombre: 'Espada de Oro Encantada', tipo: 'espada', mat: 'oro', encantamientos: ['Filo IV', 'Saqueo III'], precio: null, obtener: 'Cofres del Nether.' }
-  ],
-
-  /* ---------------- ARMADURAS del server ---------------- */
-  armaduras: [
-    {
-      nombre: 'Armadura de Diamante', precio: null, obtener: 'Craftéala con diamantes y encántala en el spawn.',
-      piezas: {
-        casco: { mat: 'diamante', encantamientos: ['Protección IV', 'Respiración III', 'Afinidad acuática'] },
-        pechera: { mat: 'diamante', encantamientos: ['Protección IV', 'Irrompibilidad III'] },
-        pantalones: { mat: 'diamante', encantamientos: ['Protección IV', 'Irrompibilidad III'] },
-        botas: { mat: 'diamante', encantamientos: ['Protección IV', 'Caída de pluma IV'] }
-      }
-    },
-    {
-      nombre: 'Armadura de Cuarzo Rosa', precio: 12, obtener: 'Exclusiva de FurryLand: tienda o mina profunda (muy rara).',
-      piezas: {
-        casco: { mat: 'rosa', encantamientos: ['Protección V', 'Reparación'] },
-        pechera: { mat: 'rosa', encantamientos: ['Protección V', 'Reparación', 'Espinas III'] },
-        pantalones: { mat: 'rosa', encantamientos: ['Protección V', 'Reparación'] },
-        botas: { mat: 'rosa', encantamientos: ['Protección V', 'Caída de pluma IV', 'Reparación'] }
-      },
-      piel: { pelo: '#ffffff', panza: '#ffe1ef', ropa: '#3a2450' }
-    },
-    {
-      nombre: 'Armadura de Netherite', precio: null, obtener: 'Mejora tu armadura de diamante con lingotes de netherite.',
-      piezas: {
-        casco: { mat: 'netherite', encantamientos: ['Protección IV', 'Irrompibilidad III'] },
-        pechera: { mat: 'netherite', encantamientos: ['Protección IV', 'Irrompibilidad III'] },
-        pantalones: { mat: 'netherite', encantamientos: ['Protección IV', 'Irrompibilidad III'] },
-        botas: { mat: 'netherite', encantamientos: ['Protección IV', 'Caída de pluma IV'] }
-      }
-    },
-    {
-      nombre: 'Armadura de Hierro', precio: null, obtener: 'La más común: craftéala con lingotes de hierro.',
-      piezas: {
-        casco: { mat: 'hierro', encantamientos: [] },
-        pechera: { mat: 'hierro', encantamientos: ['Protección I'] },
-        pantalones: { mat: 'hierro', encantamientos: [] },
-        botas: { mat: 'hierro', encantamientos: [] }
-      },
-      piel: { pelo: '#c9a27a', ropa: '#3b4a6b' }
-    }
-  ],
-
-  /* ---------------- DONADORES ---------------- */
-  donadores: {
-    minimo: 15,   /* a partir de cuánto entras al Top Donador */
-    titulo: 'Top Donador',
-    texto: 'Si apoyas al server con $15 USD o más, entras al Top Donador. Tu ayuda paga el hosting y los eventos, y te llevas un kit exclusivo.',
-    beneficios: [
-      'Prefijo [Top Donador] dorado en el chat y en el tab',
-      'Tu nombre en el muro de donadores del spawn',
-      'Kit Top Donador cada 7 días',
-      'Rol especial en el Discord',
-      'Acceso anticipado a las actualizaciones'
-    ],
-    pasos: [
-      'Haz tu donación de $15 USD o más desde el botón de abajo.',
-      'Manda el comprobante por Discord en el canal #donaciones junto con tu nick de Minecraft.',
-      'Un admin te da el rango en menos de 24 horas.',
-      'Dentro del server escribe /kit topdonador para recibir tu kit (se puede usar cada 7 días).'
-    ],
-    kit: {
-      casco: { mat: 'oro', nombre: 'Corona del Donador', encantamientos: ['Protección IV', 'Irrompibilidad III', 'Reparación'] },
-      pechera: { mat: 'netherite', encantamientos: ['Protección IV', 'Irrompibilidad III', 'Reparación'] },
-      pantalones: { mat: 'netherite', encantamientos: ['Protección IV', 'Irrompibilidad III', 'Reparación'] },
-      botas: { mat: 'oro', encantamientos: ['Protección IV', 'Caída de pluma IV', 'Velocidad del alma III'] },
-      arma: { tipo: 'espada', mat: 'oro', nombre: 'Espada del Mecenas', encantamientos: ['Filo V', 'Botín III', 'Reparación'] }
-    },
-    piel: { pelo: '#ffe39a', panza: '#fffaf0', ropa: '#5a1d3f' },
-    capa: '#f4cf38',
-    /* lista del Top (ordénala de mayor a menor) */
-    top: [
-      { nick: 'EjemploUno', monto: 50 },
-      { nick: 'EjemploDos', monto: 35 },
-      { nick: 'EjemploTres', monto: 20 }
-    ]
+  /* ---------- sets de armadura del server (armeria_def.py) ---------- */
+  function set(id, nombre, rareza, base, obtener, bonus, ench, extra) {
+    ench = ench || {};
+    var piezas = {};
+    [['casco', 'Casco'], ['pechera', 'Pechera'], ['pantalones', 'Pantalones'], ['botas', 'Botas']].forEach(function (p) {
+      piezas[p[0]] = { set: id, nombre: p[1] + ' ' + nombre, icono: TEX + id + '_' + p[0] + '.png', encantamientos: ench[p[0]] || [] };
+    });
+    var o = { id: id, nombre: 'Armadura ' + nombre, rareza: rareza, base: base, obtener: obtener, bonus: bonus, piezas: piezas, precio: null };
+    for (var k in extra) o[k] = extra[k];
+    return o;
   }
-};
+
+  window.FURRYLAND = {
+
+    servidor: {
+      nombre: 'FURRYLAND',
+      autor: 'AlexitoFS',
+      logo: 'minecraft-media/logo-furryland.png', /* si no existe la imagen, se muestra el logo en letras */
+      ip: '',                                       /* pon aquí la IP pública cuando la tengas (vacío = no se muestra) */
+      version: 'Java y Bedrock · Paper 26.3',
+      lobby: 'Puerto de Valdrena'
+    },
+
+    tienda: {
+      moneda: 'MXN',
+      simbolo: '$',
+      comprarUrl: 'contacto.html',   /* a dónde lleva el botón "Comprar" (tu Discord, tu tienda, etc.) */
+      comprarTexto: 'Comprar'
+    },
+
+    /* ---------------- CARRUSEL ----------------
+       tipo: 'oferta' | 'noticia' | 'actualizacion' | 'evento'
+       img: imagen de fondo (se muestra completa a la derecha). Vacío = fondo de color. */
+    carrusel: [
+      { tipo: 'noticia', titulo: 'Ahora somos FurryLand', texto: 'El server estrenó nombre. El pueblo del lobby sigue siendo el Puerto de Valdrena, con su faro, su casino y sus misiones.', img: 'minecraft-media/vista_novedades.png', boton: { texto: 'Ver rangos', ir: 'rangos' } },
+      { tipo: 'actualizacion', titulo: 'Warden Ancestral', texto: 'Un jefe de 4.5 bloques con venas de sculk que brillan. Suelta el Arco de la Tormenta y el Amuleto del Silencio.', img: 'minecraft-media/vista_warden.png', boton: { texto: 'Ver armas', ir: 'armas' } },
+      { tipo: 'evento', titulo: 'Bosses con cuerpo 3D', texto: 'Caminan, atacan y se desmoronan al morir. Derrótalos para ganar la Llave de Jefe y sus armas exclusivas.', img: 'minecraft-media/vista_bosses_3d.png', boton: { texto: 'Ver armaduras', ir: 'armaduras' } },
+      { tipo: 'oferta', titulo: 'Espíritus de paga', texto: 'Mascotas que brillan en la oscuridad y sueltan partículas. Desde $50 MXN.', img: 'minecraft-media/vista_mascotas.png', boton: { texto: 'Ver items', ir: 'items' } },
+      { tipo: 'noticia', titulo: 'Top Donador', texto: 'Dona más de 15 USD y llévate prefijo dorado, colores en el chat y el Kit Top Donador cada 3 días.', img: '', boton: { texto: 'Ver Donadores', ir: 'donadores' } }
+    ],
+
+    /* ---------------- RANGOS VIP (dinero real, permanentes) · kits de plugins/Essentials/kits.yml ---------------- */
+    rangos: [
+      {
+        nombre: 'Novato', color: '#c9c3dd', precio: null, gratis: 'Rango inicial',
+        descripcion: 'El rango con el que empieza todo el mundo.',
+        ventajas: ['2 protecciones', '2 casas', 'Kit diario', '3 subastas a la vez'],
+        kit: { arma: { tipo: 'espada', mat: 'hierro', nombre: 'Espada del Novato', encantamientos: [] } },
+        tambien: ['Pico del Novato y hacha de hierro', '16 panes y 16 antorchas', '$150 del juego'],
+        piel: { pelo: '#f7a8cb', ropa: '#3a3358' }
+      },
+      {
+        nombre: 'Aventurero', color: '#7cf0b8', precio: 50,
+        descripcion: 'Tu primera armadura completa y comandos útiles.',
+        ventajas: ['5 protecciones', '5 casas', 'Kit diario y semanal', '/hat y /craft', '6 subastas'],
+        kit: {
+          casco: { mat: 'hierro', encantamientos: ['Irrompibilidad I'] },
+          pechera: { mat: 'hierro', encantamientos: ['Irrompibilidad I'] },
+          pantalones: { mat: 'hierro', encantamientos: ['Irrompibilidad I'] },
+          botas: { mat: 'hierro', encantamientos: ['Irrompibilidad I'] },
+          arma: { tipo: 'espada', mat: 'hierro', nombre: 'Espada del Aventurero', encantamientos: ['Filo II', 'Irrompibilidad I'] }
+        },
+        tambien: ['Pico de hierro (Eficiencia II)', '32 filetes y 8 zanahorias doradas', 'Llave común', 'Poción del minero y estofado del puerto', '$400 del juego'],
+        piel: { pelo: '#f7a8cb', ropa: '#2f6b55' }
+      },
+      {
+        nombre: 'Veterano', color: '#5fd3ff', precio: 100,
+        descripcion: 'Hierro encantado y espada de diamante.',
+        ventajas: ['10 protecciones', '10 casas', 'Kit diario y semanal', '/ec (cofre de ender)', '10 subastas', 'Todo lo de Aventurero'],
+        kit: {
+          casco: { mat: 'hierro', encantamientos: ['Protección II', 'Irrompibilidad II'] },
+          pechera: { mat: 'hierro', encantamientos: ['Protección II', 'Irrompibilidad II'] },
+          pantalones: { mat: 'hierro', encantamientos: ['Protección II', 'Irrompibilidad II'] },
+          botas: { mat: 'hierro', encantamientos: ['Protección II', 'Irrompibilidad II', 'Caída de pluma II'] },
+          arma: { tipo: 'espada', mat: 'diamante', nombre: 'Espada del Veterano', encantamientos: ['Filo III', 'Irrompibilidad II'] }
+        },
+        tambien: ['Pico de diamante (Eficiencia III, Fortuna I)', '3 manzanas de oro', '16 botellas de experiencia', 'Llave poco común', 'Poción de pluma y Elixir del explorador', '$900 del juego'],
+        piel: { pelo: '#f7a8cb', ropa: '#24476b' }
+      },
+      {
+        nombre: 'Héroe', color: '#ffb35c', precio: 200, destacado: true,
+        descripcion: 'Diamante completo y herramientas de herrería.',
+        ventajas: ['15 protecciones', '15 casas', 'Kit cada 2 días y semanal', '/anvil, /grindstone y /smithingtable', '15 subastas', 'Todo lo de Veterano'],
+        kit: {
+          casco: { mat: 'diamante', encantamientos: ['Protección III', 'Irrompibilidad III'] },
+          pechera: { mat: 'diamante', encantamientos: ['Protección III', 'Irrompibilidad III'] },
+          pantalones: { mat: 'diamante', encantamientos: ['Protección III', 'Irrompibilidad III'] },
+          botas: { mat: 'diamante', encantamientos: ['Protección III', 'Irrompibilidad III', 'Caída de pluma III'] },
+          arma: { tipo: 'espada', mat: 'diamante', nombre: 'Espada del Héroe', encantamientos: ['Filo IV', 'Botín II', 'Irrompibilidad III'] }
+        },
+        tambien: ['Pico de diamante (Eficiencia IV, Fortuna II)', '6 manzanas de oro y 8 perlas de ender', '32 botellas de experiencia', 'Llave rara', 'Poción del titán, Varita de curación y Manzana de mithril', '$2,000 del juego'],
+        piel: { pelo: '#f7a8cb', ropa: '#5a2a1f' }
+      },
+      {
+        nombre: 'Leyenda', color: '#ff6fae', precio: 350,
+        descripcion: 'El rango más alto: Protección IV y la Espada Legendaria.',
+        ventajas: ['20 protecciones', '20 casas', 'Kit cada 3 días y semanal', 'Colores en el chat y /nick', '25 subastas', 'Todo lo de Héroe'],
+        kit: {
+          casco: { mat: 'diamante', encantamientos: ['Protección IV', 'Irrompibilidad III'] },
+          pechera: { mat: 'diamante', encantamientos: ['Protección IV', 'Irrompibilidad III'] },
+          pantalones: { mat: 'diamante', encantamientos: ['Protección IV', 'Irrompibilidad III'] },
+          botas: { mat: 'diamante', encantamientos: ['Protección IV', 'Irrompibilidad III', 'Caída de pluma IV'] },
+          arma: { tipo: 'espada', mat: 'netherite', nombre: 'Espada Legendaria', encantamientos: ['Filo V', 'Botín III', 'Aspecto ígneo II', 'Irrompibilidad III'] }
+        },
+        tambien: ['Arco (Poder IV, Infinidad) y pico (Eficiencia V, Fortuna III)', '2 manzanas de Notch y 1 tótem', '64 botellas de experiencia', 'Llave épica', 'Poción del dragón, Varita destello y Manzana de mithril', '$4,500 del juego'],
+        piel: { pelo: '#f7a8cb', ropa: '#1f1838' }
+      }
+    ],
+
+    /* ---------------- ITEMS ----------------
+       dePaga: true  = se compra con dinero real (precio en MXN)
+       dePaga: false = se consigue jugando (obtener dice cómo)
+       img: textura real · sprite: recorte de una imagen · icono: dibujo genérico (gema, estrella, cofre...) */
+    items: [
+      /* espíritus (mascotas de paga) */
+      { nombre: 'Conejo Lunar', dePaga: true, precio: 50, sprite: [0, 1], descripcion: 'Suerte II, Salto II, sin daño por caída y +50% de experiencia.' },
+      { nombre: 'Rana Esmeralda', dePaga: true, precio: 50, sprite: [1, 1], descripcion: 'Salto II, respiración, Gracia del delfín, sin caída e imán de objetos.' },
+      { nombre: 'Mariposa Aurora', dePaga: true, precio: 60, icono: 'estrella', color: '#8fd8ff', descripcion: 'Caída lenta, Velocidad I, Regeneración I y sin daño por caída.' },
+      { nombre: 'Zorro Espectral', dePaga: true, precio: 60, sprite: [2, 1], descripcion: 'Velocidad II, visión nocturna, imán de objetos y +50% de experiencia.' },
+      { nombre: 'Abeja Dorada', dePaga: true, precio: 70, sprite: [3, 1], descripcion: 'Prisa II, te cura 1 corazón cada 15 s y no te da hambre.' },
+      { nombre: 'Araña Abisal', dePaga: true, precio: 70, sprite: [4, 1], descripcion: 'Visión nocturna, Fuerza I e inmunidad al veneno y al wither.' },
+      { nombre: 'Foquita Glaciar', dePaga: true, precio: 70, icono: 'gema', color: '#7cd3f0', descripcion: 'Respiración acuática IV y Gracia del delfín III: pica, ve y camina bajo el agua sin frenarte.' },
+      { nombre: 'Gato Real', dePaga: true, precio: 80, icono: 'estrella', color: 'oro', descripcion: 'Absorción III, Resistencia I, Regeneración I y Suerte I, sin lentitud. Lleva corona.' },
+      /* protecciones de paga */
+      { nombre: 'Protección Esmeralda', dePaga: true, precio: 80, icono: 'gema', color: 'esmeralda', descripcion: 'Bloque que protege un terreno de 256x256 de arriba a abajo.' },
+      { nombre: 'Protección Real', dePaga: true, precio: 150, icono: 'gema', color: 'oro', descripcion: 'Bloque que protege un terreno de 512x512 de arriba a abajo.' },
+
+      /* mascotas con dinero del juego */
+      { nombre: 'Conejo de Pradera', dePaga: false, sprite: [0, 0], obtener: '/mascotas por $8,000 del juego.', descripcion: 'Suerte I.' },
+      { nombre: 'Rana del Pantano', dePaga: false, sprite: [1, 0], obtener: '/mascotas por $10,000 del juego.', descripcion: 'Salto II.' },
+      { nombre: 'Zorro Rosado', dePaga: false, sprite: [2, 0], obtener: '/mascotas por $15,000 del juego.', descripcion: 'Velocidad I.' },
+      { nombre: 'Araña de Cueva', dePaga: false, sprite: [3, 0], obtener: '/mascotas por $18,000 del juego.', descripcion: 'Visión nocturna.' },
+      { nombre: 'Abeja Obrera', dePaga: false, sprite: [4, 0], obtener: '/mascotas por $20,000 del juego.', descripcion: 'Prisa I.' },
+      { nombre: 'Zorro de Fuego', dePaga: false, img: 'minecraft-media/vista_zorro_fuego.png', obtener: '/mascotas por $30,000 del juego.', descripcion: 'Resistencia al fuego y tus golpes prenden fuego.' },
+      /* tótems */
+      { nombre: 'Tótem del Fénix', dePaga: false, img: TEX + 'totem_fenix.png', obtener: '/tiendaespecial por $60,000 del juego, o en botín.', descripcion: 'Te revive con Resistencia al fuego, Regeneración III, Fuerza I y Absorción III.' },
+      { nombre: 'Tótem del Viento', dePaga: false, img: TEX + 'totem_viento.png', obtener: '/tiendaespecial por $35,000 del juego.', descripcion: 'Te revive y te teletransporta lejos con Caída lenta y Velocidad II.' },
+      { nombre: 'Tótem Guardián', dePaga: false, img: TEX + 'totem_guardian.png', obtener: '/tiendaespecial por $45,000 del juego.', descripcion: 'Te revive con Resistencia IV, Absorción IV y Regeneración II.' },
+      { nombre: 'Tótem Kitsune', dePaga: false, img: TEX + 'totem_kitsune.png', obtener: 'Solo lo suelta la Kitsune de las Nueve Colas (20%).', descripcion: 'Te revive invisible, te esconde lejos y te da Velocidad III.' },
+      { nombre: 'Tótem del Meteoro', dePaga: false, img: TEX + 'totem_meteoro.png', obtener: 'Crafteo: 1 tótem normal + 4 fragmentos de meteorito.', descripcion: 'Explota y lanza lejos a los monstruos al revivirte.' },
+      { nombre: 'Tótem del Minero', dePaga: false, img: TEX + 'totem_minero.png', obtener: '/tiendaespecial por $15,000 del juego.', descripcion: 'Pasivo en la mano izquierda: Prisa II y visión nocturna.' },
+      { nombre: 'Tótem del Guerrero', dePaga: false, img: TEX + 'totem_guerrero.png', obtener: '/tiendaespecial por $25,000 del juego.', descripcion: 'Pasivo en la mano izquierda: Fuerza I.' },
+      { nombre: 'Tótem del Mar', dePaga: false, img: TEX + 'totem_mar.png', obtener: '/tiendaespecial por $12,000 del juego.', descripcion: 'Pasivo: respiración acuática y Gracia del delfín.' },
+      { nombre: 'Tótem de la Fortuna', dePaga: false, img: TEX + 'totem_suerte.png', obtener: '/tiendaespecial por $15,000 del juego.', descripcion: 'Pasivo en la mano izquierda: Suerte II.' },
+      { nombre: 'Tótem de la Vida', dePaga: false, img: TEX + 'totem_vida.png', obtener: '/tiendaespecial por $30,000 del juego.', descripcion: 'Pasivo: +2 corazones y Regeneración I.' },
+      /* otros */
+      { nombre: 'Saco de Diamante', dePaga: false, img: TEX + 'saco_diamante.png', obtener: 'Mesa: Saco de Oro al centro + 8 diamantes.', descripcion: 'Mochila de 5 filas (45 casillas). Hay 5 niveles, desde el Saco de 9 casillas.' },
+      { nombre: 'Amuleto del Silencio', dePaga: false, img: TEX + 'amuleto_silencio_3.png', obtener: 'Lo suelta el Warden Ancestral (3 niveles).', descripcion: 'Hace que los mobs te ignoren durante un tiempo.' },
+      { nombre: 'Corona del Rey Caído', dePaga: false, img: TEX + 'corona_rey.png', obtener: 'Botín legendario.', descripcion: 'Gorro 3D que da +2 corazones.' },
+      { nombre: 'Manzana del Titán', dePaga: false, img: TEX + 'comida_manzana_titan.png', obtener: 'Kits semanales de Héroe y Leyenda, y el Kit Top Donador.', descripcion: 'Una de las manzanas especiales del server.' }
+    ],
+
+    /* ---------------- ARMAS del server (no se compran: bosses, estructuras, casino y Llave de Jefe) ---------------- */
+    armas: [
+      { nombre: 'Filo Solar', tex: 'filo_solar', rareza: R, dano: 7, vel: 1.6, efecto: '+4 de daño contra muertos vivientes.', obtener: 'Botín de bosses y estructuras.' },
+      { nombre: 'Daga Sombría', tex: 'daga_sombria', rareza: R, dano: 5, vel: 2.2, efecto: 'Muy rápida; +40% de daño por la espalda.', obtener: 'Botín de bosses y estructuras.' },
+      { nombre: 'Aguijón de la Víbora', tex: 'aguijon_vibora', rareza: R, dano: 6.5, vel: 1.6, efecto: '25% de envenenar 3 s.', obtener: 'Botín de bosses y estructuras.' },
+      { nombre: 'Colmillo de Escarcha', tex: 'colmillo_escarcha', rareza: E, dano: 7.5, vel: 1.6, efecto: '20% de congelar: Lentitud II 2 s.', obtener: 'Botín de bosses y estructuras.' },
+      { nombre: 'Espada de Brasas', tex: 'espada_brasas', rareza: E, dano: 7.5, vel: 1.6, efecto: '30% de prender fuego 3 s; +2 si ya arde.', obtener: 'Botín de bosses y estructuras.' },
+      { nombre: 'Hacha del Berserker', tex: 'hacha_berserker', rareza: E, dano: 9, vel: 0.9, efecto: '+0.5 de daño por cada corazón que te falte (máx. +3).', obtener: 'Botín de bosses y estructuras.' },
+      { nombre: 'Guadaña de Almas', tex: 'guadana_almas', rareza: E, dano: 8, vel: 1.2, efecto: 'Roba el 15% del daño como vida.', obtener: 'Botín de bosses y estructuras.' },
+      { nombre: 'Martillo del Trueno', tex: 'martillo_trueno', rareza: L, dano: 10, vel: 0.85, efecto: '12% de rayo: 5 de daño en área.', obtener: 'Botín de bosses y estructuras.' },
+      { nombre: 'Hoja del Vacío', tex: 'hoja_vacio', rareza: L, dano: 8.5, vel: 1.6, efecto: '15% de cegar y debilitar 3 s.', obtener: 'Solo en el casino.' },
+      { nombre: 'Katana de la Tormenta', tex: 'katana_tormenta', rareza: L, dano: 8, vel: 1.8, efecto: '10% de rayo: 4 de daño en área.', obtener: 'Solo en el casino.' },
+      { nombre: 'Daga del Eclipse', tex: 'daga_eclipse', rareza: E, dano: 6, vel: 2.3, efecto: 'Roba 10% de vida y +30% por la espalda.', obtener: 'Solo en el casino.' },
+      { nombre: 'Hacha Glacial', tex: 'hacha_glacial', rareza: E, dano: 9, vel: 0.95, efecto: '25% de congelar: Lentitud III 2 s.', obtener: 'Solo en el casino.' },
+      { nombre: 'Guadaña del Eclipse', tex: 'guadana_eclipse', rareza: L, dano: 8.5, vel: 1.2, efecto: 'Marchita 2 s y roba 12% de vida.', obtener: 'Solo en el casino.' },
+      { nombre: 'Martillo Sísmico', tex: 'martillo_sismico', rareza: L, dano: 10, vel: 0.85, efecto: '15% de sacudir el suelo: lanza a los monstruos.', obtener: 'Solo en el casino.' },
+      { nombre: 'Lanza del Centinela', tex: 'lanza_centinela', rareza: R, dano: 7, vel: 1.3, efecto: '+1.5 de alcance; 20% de Lentitud II.', obtener: 'Solo en la Caja de Jefe (Llave de Jefe).' },
+      { nombre: 'Mandoble de Hierro Negro', tex: 'mandoble_hierro', rareza: R, dano: 9.5, vel: 0.95, efecto: 'Barrido del 40% a los de alrededor.', obtener: 'Solo en la Caja de Jefe (Llave de Jefe).' },
+      { nombre: 'Lanza de Sculk', tex: 'lanza_sculk', rareza: E, dano: 8.5, vel: 1.3, efecto: '+2 de alcance; 25% de rayo sónico (+4 que ignora armadura).', obtener: 'Solo en la Caja de Jefe (Llave de Jefe).' },
+      { nombre: 'Mandoble Carmesí', tex: 'mandoble_carmesi', rareza: E, dano: 10.5, vel: 0.95, efecto: 'Barrido del 50% y roba 8% de vida.', obtener: 'Solo en la Caja de Jefe (Llave de Jefe).' },
+      { nombre: 'Katana Kitsune', tex: 'katana_kitsune', rareza: E, dano: 8.5, vel: 1.9, efecto: '20% de fuego de zorro; al matar, Velocidad II.', obtener: 'Solo en la Caja de Jefe (Llave de Jefe).' },
+      { nombre: 'Lanza del Leviatán', tex: 'lanza_leviatan', rareza: L, dano: 10, vel: 1.3, efecto: '+2.5 de alcance; 15% de tromba que atrae a los monstruos.', obtener: 'Solo en la Caja de Jefe (Llave de Jefe).' },
+      { nombre: 'Mandoble del Titán', tex: 'mandoble_titan', rareza: L, dano: 12.5, vel: 0.9, efecto: 'Barrido del 60%; 12% de terremoto.', obtener: 'Solo en la Caja de Jefe (Llave de Jefe).' },
+      { nombre: 'Guadaña del Warden', tex: 'guadana_warden', rareza: L, dano: 9.5, vel: 1.2, efecto: '15% de rayo sónico (+8 que ignora armadura); roba 10% de vida.', obtener: 'Solo en la Caja de Jefe (Llave de Jefe).' },
+      /* arcos elementales */
+      { nombre: 'Arco Ígneo', tex: 'arco_fuego', rareza: E, efecto: 'Con tensión completa dispara una bola de fuego.', obtener: '/tiendaespecial por $22,000 del juego, botín o Guardián Ígneo (8%).' },
+      { nombre: 'Arco Glacial', tex: 'arco_hielo', rareza: E, efecto: 'Lentitud III 4 s y congelado.', obtener: '/tiendaespecial por $18,000 del juego o Iceologer (4%).' },
+      { nombre: 'Arco Tejedor', tex: 'arco_telarana', rareza: R, efecto: 'Deja una telaraña donde pega (5 s).', obtener: '/tiendaespecial por $9,000 del juego.' },
+      { nombre: 'Arco de la Víbora', tex: 'arco_veneno', rareza: R, efecto: 'Veneno II 5 s.', obtener: '/tiendaespecial por $10,000 del juego.' },
+      { nombre: 'Arco de la Tormenta', tex: 'arco_rayo', rareza: L, efecto: 'Con tensión completa cae un rayo: 6 de daño en área.', obtener: '/tiendaespecial por $55,000 del juego o el Warden (8%).' },
+      /* herramientas de la Llave de Jefe (encantamientos por encima del máximo) */
+      { nombre: 'Pico de Mithril', tex: 'pico_mithril', rareza: R, encantamientos: ['Eficiencia VI', 'Fortuna III', 'Irrompibilidad IV'], obtener: 'Solo en la Caja de Jefe.' },
+      { nombre: 'Hacha del Leñador', tex: 'hacha_lenador', rareza: R, encantamientos: ['Eficiencia VI', 'Irrompibilidad IV'], efecto: 'Tala el árbol entero.', obtener: 'Solo en la Caja de Jefe.' },
+      { nombre: 'Pico del Excavador', tex: 'pico_excavador', rareza: E, encantamientos: ['Eficiencia VII', 'Fortuna III', 'Irrompibilidad V'], efecto: 'Pica en 3x3.', obtener: 'Solo en la Caja de Jefe.' },
+      { nombre: 'Pala Excavadora', tex: 'pala_excavadora', rareza: E, encantamientos: ['Eficiencia VII', 'Irrompibilidad V'], efecto: 'Cava en 3x3.', obtener: 'Solo en la Caja de Jefe.' },
+      { nombre: 'Azada de Inari', tex: 'azada_inari', rareza: E, encantamientos: ['Fortuna IV', 'Irrompibilidad V'], efecto: 'Cosecha en 5x5 y replanta.', obtener: 'Solo en la Caja de Jefe.' },
+      { nombre: 'Pico del Rey Enano', tex: 'pico_rey_enano', rareza: L, encantamientos: ['Eficiencia VIII', 'Fortuna V', 'Irrompibilidad VII', 'Reparación'], efecto: 'Pica en 3x3 y funde los minerales.', obtener: 'Solo en la Caja de Jefe.' },
+      { nombre: 'Hacha del Gigante', tex: 'hacha_gigante', rareza: L, encantamientos: ['Eficiencia VIII', 'Filo VI', 'Irrompibilidad VII', 'Reparación'], efecto: 'Tala el árbol entero; 11 de daño.', obtener: 'Solo en la Caja de Jefe.' }
+    ],
+
+    /* ---------------- ARMADURAS del server (texturas reales) ---------------- */
+    armaduras: [
+      set('kitsune', 'Kitsune', L, 'netherita', 'Solo la suelta la Kitsune de las Nueve Colas (12% por pieza).', ['Velocidad I y Salto I', '15% de esquivar golpes (8% en PvP)', 'Tus golpes queman con fuego de zorro'], { botas: ['Caída de pluma IV'] }, { color: '#e64a63' }),
+      set('vikingo', 'Vikingo', E, 'hierro', 'En /tiendaespecial por $12,000 del juego cada pieza, o en botín.', ['+3 corazones y resistencia al empuje', 'Furia: Fuerza I con menos de 4 corazones'], {}, { color: '#c08b5a' }),
+      set('caballero', 'del Caballero', E, 'hierro', 'En /tiendaespecial por $12,000 del juego cada pieza, o en botín.', ['+2 corazones y Resistencia I', 'Bloquear con escudo te cura medio corazón'], {}, { color: '#e1b43c' }),
+      set('dragon', 'del Dragón', L, 'netherita', 'Botín legendario.', ['+2 corazones y resistencia al fuego', 'Resistencia al empuje'], {}, { color: '#b85cd6' }),
+      set('celestial', 'Celestial', L, 'netherita', 'Solo en el casino.', ['+2 corazones y Velocidad I', 'Visión nocturna y caída lenta al agacharte'], { botas: ['Caída de pluma IV'] }, { color: '#f0c850' }),
+      set('estelar', 'Estelar', L, 'netherita', 'Solo en el casino.', ['Salto II y Velocidad I', 'Sin daño por caída'], {}, { color: '#78dcff' }),
+      set('titan', 'del Titán', L, 'netherita', 'Solo en la Caja de Jefe (Llave de Jefe).', ['+4 corazones y Resistencia I', 'Inmune al empuje', 'Fuerza I con menos de 5 corazones'], { botas: ['Caída de pluma IV'] }, { color: '#f0be3c' }),
+      set('sculk', 'de Sculk', E, 'diamante', 'Solo en la Caja de Jefe (Llave de Jefe).', ['Visión nocturna y Velocidad I', 'Inmune a Oscuridad y Ceguera', 'Quien te pega queda en Oscuridad'], { pantalones: ['Sigilo rápido III'] }, { color: '#46ebe1' }),
+      set('centinela', 'del Centinela', R, 'hierro', 'Solo en la Caja de Jefe (Llave de Jefe).', ['+2 corazones y Prisa I', 'Las flechas te hacen 30% menos daño'], {}, { color: '#5ac8ff' }),
+      set('paladin', 'del Paladín', E, 'hierro', 'Botín épico.', ['+2 corazones', 'Inmune al veneno y al wither'], {}, { color: '#dcaf32' }),
+      set('brasas', 'de Brasas', E, 'oro', 'Botín épico.', ['Resistencia al fuego', 'Quema a quien te golpea'], {}, { color: '#f08232' }),
+      set('asesino', 'del Asesino', E, 'cota de malla', 'Botín épico.', ['Velocidad I y Salto I', '+25% de daño por la espalda'], { pantalones: ['Sigilo rápido III'] }, { color: '#c8505f' }),
+      set('mareas', 'de las Mareas', R, 'cota de malla', 'Botín raro.', ['Respiración acuática siempre', 'En el agua: Gracia del delfín y Conducto'], { casco: ['Afinidad acuática'], botas: ['Agilidad acuática III'] }, { color: '#6ec8d2' }),
+      set('explorador', 'del Explorador', R, 'cota de malla', 'Botín raro.', ['Velocidad I y Salto I'], { botas: ['Caída de pluma IV'] }, { color: '#46a05a' })
+    ],
+
+    /* ---------------- DONADORES ---------------- */
+    donadores: {
+      minimo: 15, moneda: 'USD',
+      titulo: 'Top Donador',
+      texto: 'Si apoyas al server con una donación de más de 15 USD, entras al Top Donador. Se SUMA a tu rango VIP (no lo reemplaza) y tu ayuda paga el server y los eventos.',
+      beneficios: [
+        'Prefijo dorado [✦ Top Donador] en el chat (se ve encima del de tu rango)',
+        'Colores en el chat y /hat',
+        'Kit Top Donador cada 3 días',
+        'Al reclamar el kit, el server anuncia y agradece tu apoyo en el chat'
+      ],
+      pasos: [
+        'Haz tu donación de más de 15 USD con el botón de abajo.',
+        'Manda el comprobante y tu nick de Minecraft a Alexito_VT (por Contacto o en el server).',
+        'Alexito te da el rango Top Donador a mano, normalmente el mismo día.',
+        'Dentro del server escribe /kits (o el botón KITS de /menu) y reclama el Kit Top Donador, abajo al centro. Se puede volver a reclamar cada 3 días.'
+      ],
+      kit: {
+        casco: { mat: 'netherite', nombre: 'Casco del Top Donador', encantamientos: ['Protección IV', 'Irrompibilidad III'] },
+        arma: { tipo: 'espada', mat: 'netherite', nombre: 'Espada del Top Donador', encantamientos: ['Filo V', 'Botín III', 'Irrompibilidad III', 'Reparación'] }
+      },
+      tambien: ['3 manzanas de Notch y 2 tótems', '2 lingotes de netherita', '64 botellas de experiencia y 16 cohetes', '$8,000 del juego', 'Llave Legendaria y Llave de Jefe', 'Sangre de Dragón y Manzana del Titán'],
+      piel: { pelo: '#ffe39a', panza: '#fffaf0', ropa: '#5a1d3f' },
+      capa: '#f4cf38',
+      /* lista del Top (ordénala de mayor a menor): { nick:'Nombre', monto:20 } */
+      top: []
+    }
+  };
+})();

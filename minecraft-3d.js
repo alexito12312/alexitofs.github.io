@@ -106,6 +106,89 @@
     return m;
   }
 
+  /* ---------- texturas reales del server (png) ---------- */
+  var cacheTex = {};
+  function cargarTex(url) {
+    if (cacheTex[url]) return cacheTex[url];
+    var t = new T.TextureLoader().load(url);
+    t.magFilter = T.NearestFilter; t.minFilter = T.NearestFilter; t.generateMipmaps = false;
+    return (cacheTex[url] = t);
+  }
+  /* transparencia de una textura en un punto (para no "tocar" partes vacías de la armadura) */
+  var cacheAlfa = new WeakMap();
+  function alfa(tex, uv) {
+    var img = tex && tex.image; if (!img || !img.width) return 1;
+    var d = cacheAlfa.get(img);
+    if (!d) { var c = canvas(img.width, img.height), x = c.getContext('2d'); x.drawImage(img, 0, 0); try { d = x.getImageData(0, 0, img.width, img.height); } catch (e) { d = null; } cacheAlfa.set(img, d || 0); }
+    if (!d) return 1;
+    var px = Math.min(d.width - 1, Math.max(0, Math.floor(uv.x * d.width))), py = Math.min(d.height - 1, Math.max(0, Math.floor((1 - uv.y) * d.height)));
+    return d.data[(py * d.width + px) * 4 + 3] / 255;
+  }
+  /* caja con el mapeo UV de Minecraft (plantilla de 64x32; sirve igual para la de 128x64) */
+  function cajaMC(w, h, d, inflar, u, v, tex, espejo, brillo) {
+    var g = new T.BoxGeometry(w + inflar * 2, h + inflar * 2, d + inflar * 2), W = 64, H = 32;
+    /* orden de caras en three: +x, -x, +y, -y, +z (frente), -z (espalda) */
+    var caras = [[u + d + w, v + d, d, h], [u, v + d, d, h], [u + d, v, w, d], [u + d + w, v, w, d], [u + d, v + d, w, h], [u + d + w + d, v + d, w, h]];
+    if (espejo) { var tmp = caras[0]; caras[0] = caras[1]; caras[1] = tmp; }
+    var uv = g.attributes.uv;
+    caras.forEach(function (c, f) {
+      var u0 = c[0] / W, u1 = (c[0] + c[2]) / W, vt = 1 - c[1] / H, vb = 1 - (c[1] + c[3]) / H;
+      if (espejo) { var s = u0; u0 = u1; u1 = s; }
+      uv.setXY(f * 4, u0, vt); uv.setXY(f * 4 + 1, u1, vt); uv.setXY(f * 4 + 2, u0, vb); uv.setXY(f * 4 + 3, u1, vb);
+    });
+    uv.needsUpdate = true;
+    var mat = new T.MeshLambertMaterial({ map: tex, alphaTest: .1, side: T.DoubleSide });
+    var m = new T.Mesh(g, mat); m.userData.mats = [mat];
+    if (brillo) { var gm = glint(tex); gm.side = T.DoubleSide; var gl = new T.Mesh(g, gm); gl.scale.setScalar(1.006); m.add(gl); }
+    return m;
+  }
+  /* modelos de bloque de Minecraft (json con "elements"): así están hechos los cascos 3D del server.
+     Se pone en la cabeza como en el juego: 16 px del modelo = 10 px del jugador, centrado y girado 180°. */
+  var cacheJson = {};
+  function cargarJson(url) { return cacheJson[url] || (cacheJson[url] = fetch(url).then(function (r) { return r.json(); })); }
+  var CARA = { east: 0, west: 1, up: 2, down: 3, south: 4, north: 5 };
+  function modeloMC(url, texUrl, brillo, listo) {
+    var raiz = new T.Group(), interno = new T.Group();
+    var s = 10 / 16; interno.scale.setScalar(s); interno.position.set(0, 4, 0); interno.rotation.y = Math.PI;
+    raiz.add(interno);
+    cargarJson(url).then(function (j) {
+      var tex = cargarTex(texUrl);
+      var mat = new T.MeshLambertMaterial({ map: tex, alphaTest: .1, side: T.DoubleSide });
+      var gm = brillo ? glint(tex) : null; if (gm) gm.side = T.DoubleSide;
+      (j.elements || []).forEach(function (e) {
+        var f = e.from, t = e.to, w = Math.max(.001, t[0] - f[0]), h = Math.max(.001, t[1] - f[1]), d = Math.max(.001, t[2] - f[2]);
+        var g = new T.BoxGeometry(w, h, d), uv = g.attributes.uv, mats = [];
+        for (var k = 0; k < 6; k++) mats.push(INVISIBLE);
+        Object.keys(e.faces || {}).forEach(function (nom) {
+          var i = CARA[nom], fc = e.faces[nom]; if (i == null) return;
+          var u = fc.uv || [0, 0, 16, 16], u0 = u[0] / 16, u1 = u[2] / 16, v0 = 1 - u[1] / 16, v1 = 1 - u[3] / 16;
+          var esq = [[u0, v0], [u1, v0], [u0, v1], [u1, v1]];
+          var giro = ((fc.rotation || 0) / 90) % 4; /* rotación de la textura en la cara */
+          var orden = [[0, 1, 2, 3], [2, 0, 3, 1], [3, 2, 1, 0], [1, 3, 0, 2]][giro];
+          for (var q = 0; q < 4; q++) uv.setXY(i * 4 + q, esq[orden[q]][0], esq[orden[q]][1]);
+          mats[i] = mat;
+        });
+        uv.needsUpdate = true;
+        var m = new T.Mesh(g, mats); m.userData.mats = [mat];
+        m.position.set(f[0] + w / 2 - 8, f[1] + h / 2 - 8, f[2] + d / 2 - 8);
+        if (gm) { var gl = new T.Mesh(g, mats.map(function (x) { return x === INVISIBLE ? INVISIBLE : gm; })); gl.scale.setScalar(1.01); m.add(gl); }
+        var nodo = m;
+        if (e.rotation && e.rotation.angle) {
+          var o = e.rotation.origin || [8, 8, 8], piv = new T.Group();
+          piv.position.set(o[0] - 8, o[1] - 8, o[2] - 8);
+          m.position.sub(piv.position);
+          piv.rotation[e.rotation.axis || 'y'] = e.rotation.angle * Math.PI / 180;
+          piv.add(m); nodo = piv;
+        }
+        interno.add(nodo);
+      });
+      if (listo) listo(raiz);
+    }).catch(function () {});
+    return raiz;
+  }
+
+  function marcar(obj, slot) { obj.traverse(function (o) { o.userData.slot = slot; }); return obj; }
+
   /* ---------- piezas de armadura ---------- */
   function pieza(nombre, w, h, d, cols, s, opciones) {
     opciones = opciones || {};
@@ -139,7 +222,7 @@
     var fur = [piel.pelo || '#f7a8cb', shade(piel.pelo || '#f7a8cb', -.14), shade(piel.pelo || '#f7a8cb', .18)];
     var panza = piel.panza || '#fff2f8', ojos = piel.ojos || '#3b1b5f', ropa = piel.ropa || '#2a2342';
     var root = new T.Group(), partes = {};
-    function piezas(slot, m) { (partes[slot] = partes[slot] || []).push(m); }
+    function piezas(slot, m) { marcar(m, slot); (partes[slot] = partes[slot] || []).push(m); }
 
     /* cabeza */
     var cab = new T.Group(); cab.position.set(0, 24, 0); root.add(cab);
@@ -154,7 +237,7 @@
     var mOreja = lambert(ruido(fur, 2, 4, 13)), oi = ruido([panza, '#ffd7ea', '#ffe6f2'], 2, 4, 14), mOI = lambert(oi);
     [-2.6, 2.6].forEach(function (x) {
       var o = caja(2.4, 4, 1.2, [mOreja, mOreja, mOreja, mOreja, mOI, mOreja]);
-      o.position.set(x, 9.6, -.4); o.rotation.z = x < 0 ? .12 : -.12; cab.add(o);
+      o.position.set(x, 9.6, -.4); o.rotation.z = x < 0 ? .12 : -.12; o.userData.oreja = true; cab.add(o);
     });
 
     /* cuerpo */
@@ -179,6 +262,32 @@
 
     /* armadura */
     var A = spec.armadura || {};
+    /* sets con textura real del server: capa1 = casco, pechera y botas; capa2 = pantalones */
+    function t1(p) { return p.capa1 ? cargarTex(p.capa1) : null; }
+    function t2(p) { return p.capa2 ? cargarTex(p.capa2) : null; }
+    if (A.casco && A.casco.modelo) {
+      cab.children.forEach(function (c) { if (c.userData.oreja) c.visible = false; }); /* el casco tapa las orejas */
+      cab.add(modeloMC(A.casco.modelo, A.casco.texModelo, A.casco.brillo, function (g) { piezas('casco', g); }));
+      A = Object.assign({}, A, { casco: null });
+    }
+    if (A.casco && t1(A.casco)) { var hm = cajaMC(8, 8, 8, 1, 0, 0, t1(A.casco), false, A.casco.brillo); hm.position.y = 4; cab.add(hm); piezas('casco', hm); A = Object.assign({}, A, { casco: null }); }
+    if (A.pechera && t1(A.pechera)) {
+      var pt = t1(A.pechera), pb = A.pechera.brillo;
+      var pm = cajaMC(8, 12, 4, 1, 16, 16, pt, false, pb); pm.position.y = 18; root.add(pm); piezas('pechera', pm);
+      [brazoD, brazoI].forEach(function (g, k) { var b = cajaMC(4, 12, 4, 1, 40, 16, pt, k === 1, pb); b.position.y = -4; g.add(b); piezas('pechera', b); });
+      A = Object.assign({}, A, { pechera: null });
+    }
+    if (A.pantalones && t2(A.pantalones)) {
+      var lt = t2(A.pantalones), lb = A.pantalones.brillo;
+      var lm = cajaMC(8, 12, 4, .5, 16, 16, lt, false, lb); lm.position.y = 18; root.add(lm); piezas('pantalones', lm);
+      [piernaD, piernaI].forEach(function (g, k) { var p = cajaMC(4, 12, 4, .5, 0, 16, lt, k === 1, lb); p.position.y = -6; g.add(p); piezas('pantalones', p); });
+      A = Object.assign({}, A, { pantalones: null });
+    }
+    if (A.botas && t1(A.botas)) {
+      var bt = t1(A.botas), bb = A.botas.brillo;
+      [piernaD, piernaI].forEach(function (g, k) { var b = cajaMC(4, 12, 4, 1, 0, 16, bt, k === 1, bb); b.position.y = -6; g.add(b); piezas('botas', b); });
+      A = Object.assign({}, A, { botas: null });
+    }
     if (A.casco) {
       var hc = pal(A.casco.mat);
       var casco = pieza('casco', 10, 10, 10, hc, 101, { frenteHueco: true, brillo: A.casco.brillo });
@@ -274,7 +383,7 @@
     return cv;
   }
   function arma3d(spec, enMano) {
-    var g = new T.Group(), cv = spriteCanvas(spec), tex = toTex(cv);
+    var g = new T.Group(), tex = spec.tex ? cargarTex(spec.tex) : toTex(spriteCanvas(spec));
     var capas = 12, grosor = 1;
     var mat = new T.MeshLambertMaterial({ map: tex, alphaTest: .5, side: T.DoubleSide });
     var geo = new T.PlaneGeometry(16, 16);
@@ -354,11 +463,43 @@
     var ctx = cv.getContext('2d');
 
     /* arrastrar para girar */
-    var px = 0, ultimoMov = 0;
+    var px = 0, ultimoMov = 0, ini = null, bajoCursor = null;
     cv.style.touchAction = 'pan-y'; cv.style.cursor = 'grab';
-    cv.addEventListener('pointerdown', function (e) { v.arrastrando = true; px = e.clientX; v.vel = 0; cv.style.cursor = 'grabbing'; try { cv.setPointerCapture(e.pointerId); } catch (x) {} });
-    cv.addEventListener('pointermove', function (e) { if (!v.arrastrando) return; var d = (e.clientX - px) / 90; px = e.clientX; v.giro += d; v.vel = d * 30; ultimoMov = performance.now(); });
-    function soltar() { v.arrastrando = false; cv.style.cursor = 'grab'; if (performance.now() - ultimoMov > 120) v.vel = 0; }
+
+    /* qué pieza hay bajo el cursor o el dedo (ignora las partes transparentes de la armadura) */
+    var rayo = new T.Raycaster(), ndc = new T.Vector2();
+    function piezaEn(e) {
+      var r = cv.getBoundingClientRect(); if (!r.width) return null;
+      ndc.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
+      modelo.updateMatrixWorld(true); rayo.setFromCamera(ndc, camara);
+      var hits = rayo.intersectObject(modelo, true);
+      for (var i = 0; i < hits.length; i++) {
+        var h = hits[i], o = h.object, mat = Array.isArray(o.material) ? o.material[h.face.materialIndex] : o.material;
+        if (!mat || mat.visible === false) continue;
+        if (mat.isShaderMaterial) continue; /* el brillo: se mira la pieza de abajo */
+        var tex = mat.map;
+        if (tex && (mat.alphaTest > 0) && h.uv && alfa(tex, h.uv) < .1) continue;
+        return o.userData.slot || null;
+      }
+      return null;
+    }
+
+    cv.addEventListener('pointerdown', function (e) { v.arrastrando = true; px = e.clientX; ini = { x: e.clientX, y: e.clientY, t: performance.now() }; v.vel = 0; cv.style.cursor = 'grabbing'; try { cv.setPointerCapture(e.pointerId); } catch (x) {} });
+    cv.addEventListener('pointermove', function (e) {
+      if (v.arrastrando) { var d = (e.clientX - px) / 90; px = e.clientX; v.giro += d; v.vel = d * 30; ultimoMov = performance.now(); return; }
+      if (e.pointerType !== 'mouse' || !spec.alPasar) return;
+      var s = piezaEn(e); cv.style.cursor = s ? 'pointer' : 'grab';
+      if (s !== bajoCursor) { bajoCursor = s; spec.alPasar(s); }
+    });
+    cv.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse' && bajoCursor && spec.alPasar) { bajoCursor = null; spec.alPasar(null); } });
+    function soltar(e) {
+      v.arrastrando = false; cv.style.cursor = 'grab'; if (performance.now() - ultimoMov > 120) v.vel = 0;
+      /* un toque corto sin arrastrar = elegir pieza */
+      if (e && e.type === 'pointerup' && ini && Math.abs(e.clientX - ini.x) < 7 && Math.abs(e.clientY - ini.y) < 7 && performance.now() - ini.t < 450 && spec.alTocar) {
+        v.vel = 0; spec.alTocar(piezaEn(e), e.pointerType);
+      }
+      ini = null;
+    }
     cv.addEventListener('pointerup', soltar); cv.addEventListener('pointercancel', soltar);
 
     function medir() {
@@ -379,7 +520,7 @@
       medir(); var w = cv.width, h = cv.height; if (w < 4 || h < 4) return;
       if (!v.arrastrando) {
         if (Math.abs(v.vel) > .01) { v.giro += v.vel * dt; v.vel *= Math.pow(.04, dt); }
-        else if (!reducido) v.giro += dt * .55;
+        else if (!reducido && !v.resaltado) v.giro += dt * .55; /* se queda quieto mientras ves una pieza */
       }
       modelo.rotation.y = v.giro;
       var u = modelo.userData;
