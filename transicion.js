@@ -5,7 +5,7 @@
    - Se salta si el visitante tiene "reducir movimiento"; funciona con el botón Atrás.
    - Para cambiar nombres, icono o velocidad, edita las variables de abajo. */
 (function () {
-  var NOMBRES = { 'index': 'Inicio', 'comisiones': 'Comisiones', 'contacto': 'Contacto', 'fanarts': 'Fanarts', 'beneficios': 'Beneficios' };
+  var NOMBRES = { 'index': 'Inicio', 'comisiones': 'Comisiones', 'contacto': 'Contacto', 'fanarts': 'Fanarts', 'beneficios': 'Beneficios', 'minecraft': 'Minecraft' };
   var SIN_EFECTO = '__inicio';
   var ICONO = 'icono-192.png', ENTRADA = 260; /* ms que tarda en cubrir antes de cambiar de página */
 
